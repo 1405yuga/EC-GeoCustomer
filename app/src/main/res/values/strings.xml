@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">EC-Geo Customer</string>
+    <string name="customer">Customer</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="don_t_have_an_account">Don\'t have an account?</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="new_here_add_your_details_and_get_started">New here?Add your details and get started!</string>
+    <string name="name">Name</string>
+    <string name="address_line_1">Address Line 1</string>
+    <string name="address_line_2">Address Line 2</string>
+    <string name="mobile">Mobile</string>
+    <string name="submit">Submit</string>
+    <string name="you_will_recieve_otp_on_this_number">You will recieve otp on this number</string>
+    <string name="already_have_an_account">Already have an account?</string>
+    <string name="otp_verification">OTP Verification</string>
+    <string name="verify">Verify</string>
+    <string name="_0">0</string>
+    <string name="todo">TODO</string>
+    <string name="enter_6_digit_otp_sent_to_your_mobile">Enter 6 digit otp sent to your mobile</string>
+    <string name="scan">Scan</string>
+    <string name="search">Search</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
