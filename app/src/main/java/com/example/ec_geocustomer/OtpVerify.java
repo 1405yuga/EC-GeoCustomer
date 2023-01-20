@@ -43,8 +43,8 @@ public class OtpVerify extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if(task.isSuccessful()){
-                                Toast.makeText(OtpVerify.this, "Account created successfully !", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(OtpVerify.this,MainActivity.class));
+                                Toast.makeText(OtpVerify.this, "Otp verified successfully !", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(OtpVerify.this,Email.class));
                                 finish();
                             }
                             else{
@@ -63,23 +63,7 @@ public class OtpVerify extends AppCompatActivity {
         numberToMove();
     }
 
-    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
 
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            startActivity(new Intent(OtpVerify.this,MainActivity.class));
-                            finish();
-                        } else {
-                            Toast.makeText(OtpVerify.this, "Sign in fail", Toast.LENGTH_SHORT).show();
-                            // Sign in failed, display a message and update the UI
-
-                        }
-                    }
-                });
-    }
 
     private void numberToMove() {
         binding.input1.addTextChangedListener(new TextWatcher() {
