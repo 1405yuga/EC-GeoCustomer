@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:layout_margin="10dp"
+        android:layout_margin="18dp"
         android:orientation="vertical">
 
         <ImageView
@@ -39,6 +39,15 @@
             android:layout_gravity="center_horizontal"
             android:text="@string/enter_6_digit_otp_sent_to_your_mobile"
             android:textColor="@color/purple_700" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="1234"
+            android:textStyle="bold"
+            android:textColor="@color/purple_700"
+            android:id="@+id/mobileTxt"/>
 
         <LinearLayout
             android:layout_width="wrap_content"

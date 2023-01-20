@@ -3,6 +3,14 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/ADMIN/AndroidStudioProjects/EC-GeoCustomer/app/src/main/res/drawable/ic_launcher_foreground.xml" value="0.121" />
+        <entry key="..\:/Users/ADMIN/AndroidStudioProjects/EC-GeoCustomer/app/src/main/res/drawable/logout.xml" value="0.1315" />
+        <entry key="..\:/Users/ADMIN/AndroidStudioProjects/EC-GeoCustomer/app/src/main/res/layout/activity_main.xml" value="0.264" />
+        <entry key="..\:/Users/ADMIN/AndroidStudioProjects/EC-GeoCustomer/app/src/main/res/layout/activity_menus.xml" value="0.25" />
+        <entry key="..\:/Users/ADMIN/AndroidStudioProjects/EC-GeoCustomer/app/src/main/res/layout/activity_otp_verify.xml" value="0.264" />
+        <entry key="..\:/Users/ADMIN/AndroidStudioProjects/EC-GeoCustomer/app/src/main/res/layout/activity_sign_up.xml" value="0.25" />
+        <entry key="..\:/Users/ADMIN/AndroidStudioProjects/EC-GeoCustomer/app/src/main/res/menu/bottom_navigation.xml" value="0.25" />
+        <entry key="..\:/Users/ADMIN/AndroidStudioProjects/EC-GeoCustomer/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.1745" />
         <entry key="..\:/Users/ADMIN/AndroidStudioProjects/ECGeoCustomer/app/src/main/res/drawable-v24/otpbox.xml" value="0.1545" />
         <entry key="..\:/Users/ADMIN/AndroidStudioProjects/ECGeoCustomer/app/src/main/res/layout/activity_main.xml" value="0.22826086956521738" />
         <entry key="..\:/Users/ADMIN/AndroidStudioProjects/ECGeoCustomer/app/src/main/res/layout/activity_menus.xml" value="0.1905940594059406" />

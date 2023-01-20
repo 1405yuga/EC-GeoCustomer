@@ -6,11 +6,13 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
 import com.example.ec_geocustomer.databinding.ActivityMenusBinding;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class Menus extends AppCompatActivity {
 
@@ -31,6 +33,10 @@ public class Menus extends AppCompatActivity {
                     case R.id.scanner:
                         ReplaceFragment(new ScannerFragment());
                         break;
+                    case R.id.logout:FirebaseAuth.getInstance().signOut();
+                                     startActivity(new Intent(Menus.this,MainActivity.class));
+                                     finish();
+                                     break;
 
                 }
                 return true;
