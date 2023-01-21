@@ -34,6 +34,9 @@ public class OtpVerify extends AppCompatActivity {
         binding.verifyBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                binding.progressBar.setVisibility(View.VISIBLE);
+                binding.verifyBtn.setVisibility(View.INVISIBLE);
+
                 if(!binding.input1.getText().toString().trim().isEmpty() && !binding.input2.getText().toString().trim().isEmpty() && !binding.input3.getText().toString().trim().isEmpty() && !binding.input4.getText().toString().trim().isEmpty() && !binding.input5.getText().toString().trim().isEmpty() && !binding.input6.getText().toString().trim().isEmpty()){
                     String codeentered=binding.input1.getText().toString().trim()+binding.input2.getText().toString().trim()+binding.input3.getText().toString().trim()+
                             binding.input4.getText().toString().trim()+binding.input5.getText().toString().trim()+binding.input6.getText().toString().trim();
@@ -44,17 +47,23 @@ public class OtpVerify extends AppCompatActivity {
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if(task.isSuccessful()){
                                 Toast.makeText(OtpVerify.this, "Otp verified successfully !", Toast.LENGTH_SHORT).show();
+                                binding.progressBar.setVisibility(View.INVISIBLE);
+                                binding.verifyBtn.setVisibility(View.VISIBLE);
                                 startActivity(new Intent(OtpVerify.this,Email.class));
                                 finish();
                             }
                             else{
                                 Toast.makeText(OtpVerify.this, "Failed sign in!", Toast.LENGTH_SHORT).show();
+                                binding.progressBar.setVisibility(View.INVISIBLE);
+                                binding.verifyBtn.setVisibility(View.VISIBLE);
                             }
 
                         }
                     });
 
                 }else{
+                    binding.progressBar.setVisibility(View.INVISIBLE);
+                    binding.verifyBtn.setVisibility(View.VISIBLE);
                     Toast.makeText(OtpVerify.this,"Please enter all digits",Toast.LENGTH_LONG).show();
                 }
             }

@@ -156,5 +156,11 @@
             android:padding="14sp"
             android:text="@string/verify" />
 
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"></ProgressBar>
+
     </LinearLayout>
 </ScrollView>

@@ -41,12 +41,19 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if(task.isSuccessful()){
-                                        Toast.makeText(MainActivity.this, "Logged in successfully", Toast.LENGTH_SHORT).show();
-                                        startActivity(new Intent(MainActivity.this,Menus.class));
-                                        finish();
+                                        if(fAuth.getCurrentUser().isEmailVerified()){
+                                            Toast.makeText(MainActivity.this, "Logged in successfully", Toast.LENGTH_SHORT).show();
+                                            startActivity(new Intent(MainActivity.this,Menus.class));
+                                            finish();
+                                        }
+                                        else{
+                                            Toast.makeText(MainActivity.this, "Get email verified", Toast.LENGTH_SHORT).show();
+
+                                        }
+
                                     }
                                     else{
-                                        Toast.makeText(MainActivity.this, "Error !"+task.getException(), Toast.LENGTH_LONG).show();
+                                        Toast.makeText(MainActivity.this, "You don't have account!", Toast.LENGTH_LONG).show();
                                     }
                                 }
                             });
