@@ -22,13 +22,13 @@ public class Menus extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding=ActivityMenusBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        ReplaceFragment(new SearchFragment());
+        ReplaceFragment(new SearchViewFragment());
         binding.bottomNavigation.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch(item.getItemId()){
                     case R.id.search:
-                        ReplaceFragment(new SearchFragment());
+                        ReplaceFragment(new SearchViewFragment());
                         break;
                     case R.id.scanner:
                         ReplaceFragment(new ScannerFragment());
