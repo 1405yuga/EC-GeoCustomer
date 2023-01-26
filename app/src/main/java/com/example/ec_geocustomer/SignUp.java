@@ -28,18 +28,36 @@ public class SignUp extends AppCompatActivity {
         binding.submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO: 25-10-2022 check if all boxes are filled and verify mobile
-                
+                if(binding.name.getEditText().getText().toString().isEmpty()){
+                    binding.progressBar.setVisibility(View.INVISIBLE);
+                    binding.submitBtn.setVisibility(View.VISIBLE);
+                    binding.name.setError("Enter your name");
+                    return;
+                }
+                if(binding.addLine1.getEditText().getText().toString().isEmpty()){
+                    binding.progressBar.setVisibility(View.INVISIBLE);
+                    binding.submitBtn.setVisibility(View.VISIBLE);
+                    binding.addLine1.setError("Enter your address");
+                    return;
+                }
+                if(binding.city.getEditText().getText().toString().isEmpty()){
+                    binding.progressBar.setVisibility(View.INVISIBLE);
+                    binding.submitBtn.setVisibility(View.VISIBLE);
+                    binding.city.setError("Enter your city/town");
+                    return;
+                }
                 //checking if mobile empty
                 if(binding.mobile.getEditText().getText().toString().isEmpty()){
                     binding.progressBar.setVisibility(View.INVISIBLE);
                     binding.submitBtn.setVisibility(View.VISIBLE);
-                    Toast.makeText(SignUp.this, "Enter mobile number", Toast.LENGTH_SHORT).show();
+                    binding.mobile.setError("Enter mobile number");
+                    return;
                 }
                 else if(binding.mobile.getEditText().getText().toString().length()!=10){
                     binding.progressBar.setVisibility(View.INVISIBLE);
                     binding.submitBtn.setVisibility(View.VISIBLE);
-                    Toast.makeText(SignUp.this, "Enter valid mobile number", Toast.LENGTH_SHORT).show();
+                    binding.mobile.setError("Enter valid mobile number");
+                    return;
                 }
                 else{
                     binding.progressBar.setVisibility(View.VISIBLE);
