@@ -12,13 +12,16 @@ import android.widget.Toast;
 import com.example.ec_geocustomer.databinding.ActivityEmailBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class Email extends AppCompatActivity {
 
     ActivityEmailBinding binding;
+    FirebaseFirestore firebaseFirestore;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,12 +65,14 @@ public class Email extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if(task.isSuccessful()){
-                                        // TODO: 20-01-2023 send verification link
+                                        // send verification link
                                         mAuth.getCurrentUser().sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
                                                 if(task.isSuccessful()){
                                                     Toast.makeText(Email.this,"Email verification link is sent to "+binding.email.getEditText().getText().toString(),Toast.LENGTH_SHORT).show();
+
+                                                    // TODO: 27-01-2023 Add profile in firestore
                                                     startActivity(new Intent(Email.this,MainActivity.class));
                                                     finish();
                                                     binding.progressBar.setVisibility(View.INVISIBLE);

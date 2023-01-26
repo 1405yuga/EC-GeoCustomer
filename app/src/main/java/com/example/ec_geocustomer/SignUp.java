@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.ec_geocustomer.data.Profile;
 import com.example.ec_geocustomer.databinding.ActivitySignUpBinding;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.FirebaseAuth;
@@ -89,7 +90,11 @@ public class SignUp extends AppCompatActivity {
                                             binding.progressBar.setVisibility(View.GONE);
                                             binding.submitBtn.setVisibility(View.VISIBLE);
                                             Intent intent=new Intent(SignUp.this,OtpVerify.class);
-                                            intent.putExtra("mobile",binding.mobile.getEditText().getText().toString());
+                                            Profile profile=new Profile(binding.name.getEditText().getText().toString(),
+                                                    binding.addLine1.getEditText().getText().toString()+" "+binding.addLine2.getEditText().getText().toString(),
+                                                    binding.city.getEditText().getText().toString(),
+                                                    Long.parseLong(binding.mobile.getEditText().getText().toString()));
+                                            intent.putExtra("profile",profile);
                                             intent.putExtra("backendotp",s);
                                             startActivity(intent);
 
