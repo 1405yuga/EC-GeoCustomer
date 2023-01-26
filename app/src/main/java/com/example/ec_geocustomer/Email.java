@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.ec_geocustomer.data.Profile;
 import com.example.ec_geocustomer.databinding.ActivityEmailBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -16,6 +17,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class Email extends AppCompatActivity {
@@ -72,8 +74,30 @@ public class Email extends AppCompatActivity {
                                                 if(task.isSuccessful()){
                                                     Toast.makeText(Email.this,"Email verification link is sent to "+binding.email.getEditText().getText().toString(),Toast.LENGTH_SHORT).show();
 
-                                                    // TODO: 27-01-2023 Add profile in firestore
-                                                    startActivity(new Intent(Email.this,MainActivity.class));
+                                                    //  Add profile in firestore
+                                                    Intent intent=new Intent(Email.this,MainActivity.class);
+
+                                                    Profile profile=(Profile) getIntent().getSerializableExtra("profile");
+
+                                                    FirebaseFirestore fb=FirebaseFirestore.getInstance();
+                                                    fb.collection("Customer").document(binding.email.getEditText().getText().toString())
+                                                                    .collection("Profile")
+                                                                            .add(profile)
+                                                                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                                                        @Override
+                                                                                        public void onSuccess(DocumentReference documentReference) {
+                                                                                            Toast.makeText(Email.this, "Added details !!", Toast.LENGTH_SHORT).show();
+
+                                                                                        }
+                                                                                    })
+                                                                                            .addOnFailureListener(new OnFailureListener() {
+                                                                                                @Override
+                                                                                                public void onFailure(@NonNull Exception e) {
+                                                                                                    Toast.makeText(Email.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                                                                }
+                                                                                            });
+                                                    System.out.println(profile.getName()+" "+profile.getMobile()+" "+profile.getAddress()+" "+profile.getCity()+" "+binding.email.getEditText().getText());
+                                                    startActivity(intent);
                                                     finish();
                                                     binding.progressBar.setVisibility(View.INVISIBLE);
                                                     binding.submitBtn.setVisibility(View.VISIBLE);

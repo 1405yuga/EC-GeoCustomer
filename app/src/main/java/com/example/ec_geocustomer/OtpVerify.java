@@ -53,7 +53,8 @@ public class OtpVerify extends AppCompatActivity {
                                 binding.progressBar.setVisibility(View.INVISIBLE);
                                 binding.verifyBtn.setVisibility(View.VISIBLE);
                                 Intent intent = new Intent(OtpVerify.this,Email.class);
-                                intent.putExtra("profile",profile);
+                                Profile profile1 = (Profile) getIntent().getSerializableExtra("profile");
+                                intent.putExtra("profile",profile1);
                                 startActivity(intent);
                                 finish();
                             }
