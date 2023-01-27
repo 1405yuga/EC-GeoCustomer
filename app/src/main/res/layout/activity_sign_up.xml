@@ -102,7 +102,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="10sp"
-            android:hint="City/Town">
+            android:hint="@string/city_town">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"

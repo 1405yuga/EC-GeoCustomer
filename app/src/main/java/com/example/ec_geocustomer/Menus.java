@@ -33,10 +33,9 @@ public class Menus extends AppCompatActivity {
                     case R.id.scanner:
                         ReplaceFragment(new ScannerFragment());
                         break;
-                    case R.id.logout:FirebaseAuth.getInstance().signOut();
-                                     startActivity(new Intent(Menus.this,MainActivity.class));
-                                     finish();
-                                     break;
+                    case R.id.settings:
+                        ReplaceFragment(new Settings());
+                        break;
 
                 }
                 return true;

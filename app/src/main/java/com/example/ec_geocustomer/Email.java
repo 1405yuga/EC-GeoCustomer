@@ -96,7 +96,7 @@ public class Email extends AppCompatActivity {
                                                                                                     Toast.makeText(Email.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                                                                                                 }
                                                                                             });
-                                                    System.out.println(profile.getName()+" "+profile.getMobile()+" "+profile.getAddress()+" "+profile.getCity()+" "+binding.email.getEditText().getText());
+
                                                     startActivity(intent);
                                                     finish();
                                                     binding.progressBar.setVisibility(View.INVISIBLE);

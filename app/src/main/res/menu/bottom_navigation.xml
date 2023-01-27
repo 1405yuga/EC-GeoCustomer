@@ -17,9 +17,9 @@
         android:title="@string/scan"
         tools:showAsAction="always"/>
     <item
-        android:id="@+id/logout"
+        android:id="@+id/settings"
         android:enabled="true"
-        android:icon="@drawable/scanner"
-        android:title="@string/logout"
+        android:icon="@drawable/settings"
+        android:title="@string/settings"
         tools:showAsAction="always"/>
 </menu>

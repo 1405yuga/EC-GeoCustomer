@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.ec_geocustomer.databinding.FragmentSearchViewBinding;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -16,11 +17,22 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+
+
 public class SearchViewFragment extends Fragment {
 
+    FragmentSearchViewBinding binding;
+    boolean newPoints=false;
+    ArrayList<LatLng> locationArrayList = new ArrayList<>();
+    LatLng sydney = new LatLng(-34, 151);
+    LatLng TamWorth = new LatLng(-31.083332, 150.916672);
+    LatLng NewCastle = new LatLng(-32.916668, 151.750000);
+    LatLng Brisbane = new LatLng(-27.470125, 153.021072);
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
-        // TODO: 24-01-2023 connect to google cloud - maps api 
+
+
         /**
          * Manipulates the map once available.
          * This callback is triggered when the map is ready to be used.
@@ -32,9 +44,18 @@ public class SearchViewFragment extends Fragment {
          */
         @Override
         public void onMapReady(GoogleMap googleMap) {
-            LatLng sydney = new LatLng(-34, 151);
-            googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+            if(newPoints){
+                for(int i=0;i<locationArrayList.size();i++){
+                    googleMap.addMarker(new MarkerOptions().position(locationArrayList.get(i)).title("Marker"));
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLng(locationArrayList.get(i)));
+                }
+            }
+            else{
+                LatLng sydney = new LatLng(-34, 151);
+                googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+                googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+            }
         }
     };
 
@@ -43,7 +64,30 @@ public class SearchViewFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_search_view, container, false);
+        binding= FragmentSearchViewBinding.bind(inflater.inflate(R.layout.fragment_search_view, container, false));
+        binding.btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                // on below line we are adding our
+                // locations in our array list.
+                locationArrayList.add(sydney);
+                locationArrayList.add(TamWorth);
+                locationArrayList.add(NewCastle);
+                locationArrayList.add(Brisbane);
+                newPoints=true;
+                onViewCreated(binding.getRoot(),savedInstanceState);
+
+            }
+        });
+
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding=null;
     }
 
     @Override
