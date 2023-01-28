@@ -2,25 +2,21 @@ package com.example.ec_geocustomer;
 
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+
+import androidx.fragment.app.Fragment;
 
 import com.example.ec_geocustomer.data.Profile;
 import com.example.ec_geocustomer.databinding.FragmentSettingsBinding;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Source;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -30,6 +26,9 @@ import com.google.firebase.firestore.Source;
 public class Settings extends Fragment {
 
 
+    FragmentSettingsBinding binding;
+    FirebaseAuth firebaseAuth;
+    FirebaseFirestore firebaseFirestore;
 
     public Settings() {
         // Required empty public constructor
@@ -47,24 +46,28 @@ public class Settings extends Fragment {
 
     }
 
-    FragmentSettingsBinding binding;
-    FirebaseAuth firebaseAuth;
-    FirebaseFirestore firebaseFirestore;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        binding=FragmentSettingsBinding.bind(inflater.inflate(R.layout.fragment_settings, container, false));
-        firebaseAuth=FirebaseAuth.getInstance();
-        firebaseFirestore=FirebaseFirestore.getInstance();
-        final String email=firebaseAuth.getCurrentUser().getEmail();
-        // TODO: 27-01-2023 get details and displAy profile
-
-        /*firebaseFirestore.collection("Customer")
-                        .document(email)
-                                .collection("Profile")
-
-         */
+        binding = FragmentSettingsBinding.bind(inflater.inflate(R.layout.fragment_settings, container, false));
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        final String email = firebaseAuth.getCurrentUser().getEmail();
+        // get details and displAy profile
+        firebaseFirestore.collection("Customer").document(email).collection("Profile").get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        List<DocumentSnapshot> documentSnapshotList = queryDocumentSnapshots.getDocuments();
+                        DocumentSnapshot documentSnapshot = documentSnapshotList.get(0);
+                        Profile profile = documentSnapshot.toObject(Profile.class);
+                        binding.name.setText(profile.getName());
+                        binding.address.setText(profile.getAddress());
+                        binding.city.setText(profile.getCity());
+                        binding.mobile.setText(profile.getMobile() + "");
+                    }
+                });
 
 
         binding.email.setText(firebaseAuth.getCurrentUser().getEmail());
@@ -80,7 +83,7 @@ public class Settings extends Fragment {
             @Override
             public void onClick(View view) {
                 FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(getActivity(),MainActivity.class));
+                startActivity(new Intent(getActivity(), MainActivity.class));
                 getActivity().onBackPressed();
             }
         });
