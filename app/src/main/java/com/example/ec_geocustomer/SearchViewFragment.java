@@ -2,8 +2,11 @@ package com.example.ec_geocustomer;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,7 +20,10 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 
 public class SearchViewFragment extends Fragment {
@@ -65,6 +71,7 @@ public class SearchViewFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         binding= FragmentSearchViewBinding.bind(inflater.inflate(R.layout.fragment_search_view, container, false));
+        /*
         binding.btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -80,7 +87,32 @@ public class SearchViewFragment extends Fragment {
 
             }
         });
+        */
+        binding.searchView.clearFocus();;
+        binding.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                // TODO: 28-01-2023 display shops
 
+                locationArrayList.add(sydney);
+                locationArrayList.add(TamWorth);
+                locationArrayList.add(NewCastle);
+                locationArrayList.add(Brisbane);
+                newPoints=true;
+
+
+                binding.searchView.clearFocus();
+                onViewCreated(binding.getRoot(),savedInstanceState);
+
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                // TODO: 28-01-2023 suggestions 
+                return true;
+            }
+        });
         return binding.getRoot();
     }
 

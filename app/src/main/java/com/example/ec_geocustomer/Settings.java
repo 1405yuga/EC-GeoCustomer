@@ -58,7 +58,14 @@ public class Settings extends Fragment {
         firebaseAuth=FirebaseAuth.getInstance();
         firebaseFirestore=FirebaseFirestore.getInstance();
         final String email=firebaseAuth.getCurrentUser().getEmail();
-        // TODO: 27-01-2023 get details and displAy profile 
+        // TODO: 27-01-2023 get details and displAy profile
+
+        /*firebaseFirestore.collection("Customer")
+                        .document(email)
+                                .collection("Profile")
+
+         */
+
 
         binding.email.setText(firebaseAuth.getCurrentUser().getEmail());
 
