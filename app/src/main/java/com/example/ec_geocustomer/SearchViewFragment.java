@@ -1,16 +1,28 @@
 package com.example.ec_geocustomer;
 
+import static android.content.ContentValues.TAG;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
+import androidx.cursoradapter.widget.CursorAdapter;
+import androidx.cursoradapter.widget.SimpleCursorAdapter;
 import androidx.fragment.app.Fragment;
 
+import android.annotation.SuppressLint;
+import android.app.SearchManager;
+import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.location.Address;
 import android.location.Geocoder;
+import android.nfc.Tag;
 import android.os.Bundle;
+import android.provider.BaseColumns;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FilterQueryProvider;
 
 import com.example.ec_geocustomer.databinding.FragmentSearchViewBinding;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -22,6 +34,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -65,6 +78,8 @@ public class SearchViewFragment extends Fragment {
         }
     };
 
+    List<String>list = new ArrayList<>();
+    SimpleCursorAdapter cursorAdapter;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -88,7 +103,17 @@ public class SearchViewFragment extends Fragment {
             }
         });
         */
-        binding.searchView.clearFocus();;
+        list.add("a");
+        list.add("ab");
+        list.add("ab c");
+        int [] to =new int[] {R.id.searchItemID};
+        String[] from=new String[]{SearchManager.SUGGEST_COLUMN_TEXT_1};
+
+        cursorAdapter=new SimpleCursorAdapter(getActivity(),R.layout.suggestion_list,null,from,to,CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+        binding.searchView.setSuggestionsAdapter(cursorAdapter);
+
+
+
         binding.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -109,7 +134,30 @@ public class SearchViewFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                // TODO: 28-01-2023 suggestions 
+                // TODO: 28-01-2023 suggestions
+                MatrixCursor cursor=new MatrixCursor(new String[]{
+                        BaseColumns._ID,SearchManager.SUGGEST_COLUMN_TEXT_1
+                });
+                for (int j=0; j<list.size(); j++) {
+                    if (list.get(j).toLowerCase().startsWith(newText.toLowerCase()))
+                        cursor.addRow(new Object[] {j, list.get(j)});
+                }
+                cursorAdapter.changeCursor(cursor);
+                return false;
+            }
+        });
+
+        binding.searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+            @Override
+            public boolean onSuggestionSelect(int position) {
+                return false;
+            }
+
+            @Override
+            public boolean onSuggestionClick(int position) {
+                Cursor cursor1=(Cursor) cursorAdapter.getItem(position);
+                @SuppressLint("Range") String item=cursor1.getString(cursor1.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1));
+                binding.searchView.setQuery(item,true);
                 return true;
             }
         });
