@@ -1,5 +1,7 @@
 package com.example.ec_geocustomer;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
@@ -13,11 +15,13 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.os.Bundle;
 import android.provider.BaseColumns;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.ec_geocustomer.data.FiresStoreTableConstants;
+import com.example.ec_geocustomer.data.Profile;
 import com.example.ec_geocustomer.databinding.FragmentSearchViewBinding;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -26,6 +30,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -45,6 +50,9 @@ public class SearchViewFragment extends Fragment {
     LatLng Brisbane = new LatLng(-27.470125, 153.021072);
     List<String> list = new ArrayList<>();
     SimpleCursorAdapter cursorAdapter;
+    FirebaseFirestore firebaseFirestore;
+    FirebaseAuth firebaseAuth;
+    FiresStoreTableConstants constants;
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
@@ -67,9 +75,28 @@ public class SearchViewFragment extends Fragment {
                     googleMap.moveCamera(CameraUpdateFactory.newLatLng(locationArrayList.get(i)));
                 }
             } else {
+                firebaseAuth=FirebaseAuth.getInstance();
+                firebaseFirestore=FirebaseFirestore.getInstance();
+                constants=new FiresStoreTableConstants();
+                final String email = firebaseAuth.getCurrentUser().getEmail();
+                firebaseFirestore.collection(constants.getCustomer()).document(email).collection(constants.getCustomerProfile()).get()
+                        .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                            @Override
+                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                List<DocumentSnapshot> documentSnapshotList = queryDocumentSnapshots.getDocuments();
+                                DocumentSnapshot documentSnapshot = documentSnapshotList.get(0);
+                                Profile profile = documentSnapshot.toObject(Profile.class);
+                                LatLng you = new LatLng(profile.getLatitude(), profile.getLongitude());
+                                googleMap.addMarker(new MarkerOptions().position(you).title("You!!"));
+                                googleMap.moveCamera(CameraUpdateFactory.newLatLng(you));
+                            }
+                        });
+                /*
                 LatLng sydney = new LatLng(-34, 151);
                 googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
                 googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+                 */
             }
         }
     };
