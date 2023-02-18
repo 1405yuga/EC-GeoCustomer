@@ -20,6 +20,9 @@ public class FiresStoreTableConstants {
     final String ownerDiscount="discount";
     final String ownerQuantity="quantity";
 
+    //customer database
+    final String customerProfile="Profile";
+
     public String getBarcodeUrl() {
         return barcodeUrl;
     }
@@ -70,5 +73,9 @@ public class FiresStoreTableConstants {
 
     public String getBarcodeSize() {
         return barcodeSize;
+    }
+
+    public String getCustomerProfile() {
+        return customerProfile;
     }
 }

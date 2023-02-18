@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
 
+import com.example.ec_geocustomer.data.FiresStoreTableConstants;
 import com.example.ec_geocustomer.data.Profile;
 import com.example.ec_geocustomer.databinding.FragmentSettingsBinding;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -29,6 +30,7 @@ public class Settings extends Fragment {
     FragmentSettingsBinding binding;
     FirebaseAuth firebaseAuth;
     FirebaseFirestore firebaseFirestore;
+    FiresStoreTableConstants constants;
 
     public Settings() {
         // Required empty public constructor
@@ -53,9 +55,10 @@ public class Settings extends Fragment {
         binding = FragmentSettingsBinding.bind(inflater.inflate(R.layout.fragment_settings, container, false));
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
+        constants=new FiresStoreTableConstants();
         final String email = firebaseAuth.getCurrentUser().getEmail();
         // get details and displAy profile
-        firebaseFirestore.collection("Customer").document(email).collection("Profile").get()
+        firebaseFirestore.collection(constants.getCustomer()).document(email).collection(constants.getCustomerProfile()).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
