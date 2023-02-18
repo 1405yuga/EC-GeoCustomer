@@ -1,5 +1,7 @@
 package com.example.ec_geocustomer;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -80,6 +82,7 @@ public class Email extends AppCompatActivity {
                                                     Profile profile=(Profile) getIntent().getSerializableExtra("profile");
 
                                                     FirebaseFirestore fb=FirebaseFirestore.getInstance();
+                                                    Log.d(TAG,"Profile :"+profile);
                                                     fb.collection("Customer").document(binding.email.getEditText().getText().toString())
                                                                     .collection("Profile")
                                                                             .add(profile)

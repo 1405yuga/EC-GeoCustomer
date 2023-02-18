@@ -98,11 +98,7 @@ public class SearchViewFragment extends Fragment {
             }
         });
         */
-        list.add("a");
-        list.add("ab");
-        list.add("ab c");
-
-        // TODO: 17-02-2023 get itemnames
+        // get itemnames
         FirebaseFirestore firebaseFirestore=FirebaseFirestore.getInstance();
         FiresStoreTableConstants constants=new FiresStoreTableConstants();
         firebaseFirestore.collection(constants.getBarcode())
