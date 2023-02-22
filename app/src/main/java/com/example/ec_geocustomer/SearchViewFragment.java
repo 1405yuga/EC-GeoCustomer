@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.ec_geocustomer.data.FiresStoreTableConstants;
 import com.example.ec_geocustomer.data.Profile;
@@ -29,6 +30,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -36,7 +38,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class SearchViewFragment extends Fragment {
@@ -48,11 +52,12 @@ public class SearchViewFragment extends Fragment {
     LatLng TamWorth = new LatLng(-31.083332, 150.916672);
     LatLng NewCastle = new LatLng(-32.916668, 151.750000);
     LatLng Brisbane = new LatLng(-27.470125, 153.021072);
-    List<String> list = new ArrayList<>();
+    HashMap<String,String> list = new HashMap<>();
     SimpleCursorAdapter cursorAdapter;
     FirebaseFirestore firebaseFirestore;
     FirebaseAuth firebaseAuth;
     FiresStoreTableConstants constants;
+    private boolean isSuggestionClicked=false;
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
@@ -108,23 +113,7 @@ public class SearchViewFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         binding = FragmentSearchViewBinding.bind(inflater.inflate(R.layout.fragment_search_view, container, false));
-        /*
-        binding.btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
 
-                // on below line we are adding our
-                // locations in our array list.
-                locationArrayList.add(sydney);
-                locationArrayList.add(TamWorth);
-                locationArrayList.add(NewCastle);
-                locationArrayList.add(Brisbane);
-                newPoints=true;
-                onViewCreated(binding.getRoot(),savedInstanceState);
-
-            }
-        });
-        */
         // get itemnames
         FirebaseFirestore firebaseFirestore=FirebaseFirestore.getInstance();
         FiresStoreTableConstants constants=new FiresStoreTableConstants();
@@ -135,12 +124,12 @@ public class SearchViewFragment extends Fragment {
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         List<DocumentSnapshot> documents=queryDocumentSnapshots.getDocuments();
                         for(DocumentSnapshot documentSnapshot :documents){
-                            list.add(documentSnapshot.getString(constants.getBarcodeName()));
+                            list.put(documentSnapshot.getId(),documentSnapshot.getString(constants.getBarcodeName()));
                         }
 
                     }
                 });
-
+        //set suggestion adapter
         int[] to = new int[]{R.id.searchItemID};
         String[] from = new String[]{SearchManager.SUGGEST_COLUMN_TEXT_1};
         cursorAdapter = new SimpleCursorAdapter(getActivity(), R.layout.suggestion_list, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
@@ -154,24 +143,35 @@ public class SearchViewFragment extends Fragment {
                 locationArrayList.add(TamWorth);
                 locationArrayList.add(NewCastle);
                 locationArrayList.add(Brisbane);
-                newPoints = true;
 
+                if(isSuggestionClicked){
+                    // TODO: 18-02-2023  clicked from items in barcodelist
+                    Log.d(TAG,"isSuggestion clicked !");
+                    getShops(query);
+                    newPoints = true;
+
+                }
+                else{
+                    Toast.makeText(getActivity(), "Select products from suggestion", Toast.LENGTH_SHORT).show();
+                }
 
                 binding.searchView.clearFocus();
                 onViewCreated(binding.getRoot(), savedInstanceState);
+
 
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                // TODO: 28-01-2023 suggestions
+                // suggestions from firebase
                 MatrixCursor cursor = new MatrixCursor(new String[]{
                         BaseColumns._ID, SearchManager.SUGGEST_COLUMN_TEXT_1
                 });
-                for (int j = 0; j < list.size(); j++) {
-                    if (list.get(j).toLowerCase().startsWith(newText.toLowerCase()))
-                        cursor.addRow(new Object[]{j, list.get(j)});
+                ArrayList<String> valueList = new ArrayList<String>(list.values());
+                for (int j = 0; j < valueList.size(); j++) {
+                    if (valueList.get(j).toLowerCase().startsWith(newText.toLowerCase()))
+                        cursor.addRow(new Object[]{j, valueList.get(j)});
                 }
                 cursorAdapter.changeCursor(cursor);
                 return false;
@@ -181,6 +181,7 @@ public class SearchViewFragment extends Fragment {
         binding.searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
             @Override
             public boolean onSuggestionSelect(int position) {
+
                 return false;
             }
 
@@ -188,11 +189,72 @@ public class SearchViewFragment extends Fragment {
             public boolean onSuggestionClick(int position) {
                 Cursor cursor1 = (Cursor) cursorAdapter.getItem(position);
                 @SuppressLint("Range") String item = cursor1.getString(cursor1.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1));
+                isSuggestionClicked=true;
                 binding.searchView.setQuery(item, true);
                 return true;
             }
         });
         return binding.getRoot();
+    }
+
+    String itemBarcodeSearched = null;
+    private void getShops(String query) {
+
+        Log.d(TAG,"getShops() called"+query);
+        //get barcode
+        for(Map.Entry<String, String> entry: list.entrySet()) {
+            Log.d(TAG,"value :"+entry.getValue());
+            if(entry.getValue().trim().equals(query.trim())) {
+                itemBarcodeSearched= entry.getKey();
+                break;
+            }
+        }
+
+        if(itemBarcodeSearched!=null){
+            firebaseFirestore=FirebaseFirestore.getInstance();
+            firebaseFirestore.collection(constants.getOwner())
+                    .get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            Log.d(TAG,"getOwners called");
+                            List<DocumentSnapshot> ownerIds=queryDocumentSnapshots.getDocuments();
+                            //go through each owner
+                            for(DocumentSnapshot ownerId:ownerIds){
+                                //FirebaseFirestore firestore=FirebaseFirestore.getInstance();
+                                Log.d(TAG,"Owner email "+ownerId.getId());
+                                //check for availability
+                                /*
+                                firestore.collection(constants.getOwner()).document(ownerId.getId()).collection(constants.getOwnerAvailability())
+                                        .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                                Log.d(TAG,"Availability "+queryDocumentSnapshots.getDocuments().get(0).getId());
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Toast.makeText(getActivity(), "Error: "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                Log.d(TAG,"Error !"+e.getMessage());
+                                            }
+                                        });
+
+                                 */
+
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(getActivity(), "Error: "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Log.e(TAG,e.getMessage());
+                        }
+                    });
+        }
+
+
     }
 
     @Override
