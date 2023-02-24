@@ -84,18 +84,25 @@ public class SearchViewFragment extends Fragment {
                 firebaseFirestore=FirebaseFirestore.getInstance();
                 constants=new FiresStoreTableConstants();
                 final String email = firebaseAuth.getCurrentUser().getEmail();
-                firebaseFirestore.collection(constants.getCustomer()).document(email).collection(constants.getCustomerProfile()).get()
-                        .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                firebaseFirestore.collection(constants.getCustomer()).document(email)
+                        .get()
+                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                             @Override
-                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                                List<DocumentSnapshot> documentSnapshotList = queryDocumentSnapshots.getDocuments();
-                                DocumentSnapshot documentSnapshot = documentSnapshotList.get(0);
-                                Profile profile = documentSnapshot.toObject(Profile.class);
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                Profile profile=documentSnapshot.toObject(Profile.class);
+                                Log.d(TAG,"profile:"+profile);
                                 LatLng you = new LatLng(profile.getLatitude(), profile.getLongitude());
                                 googleMap.addMarker(new MarkerOptions().position(you).title("You!!"));
                                 googleMap.moveCamera(CameraUpdateFactory.newLatLng(you));
                             }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d(TAG,"failed "+e.getMessage());
+                            }
                         });
+
                 /*
                 LatLng sydney = new LatLng(-34, 151);
                 googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
@@ -145,9 +152,28 @@ public class SearchViewFragment extends Fragment {
                 locationArrayList.add(Brisbane);
 
                 if(isSuggestionClicked){
-                    // TODO: 18-02-2023  clicked from items in barcodelist
+                    // get barcode of item clicked
                     Log.d(TAG,"isSuggestion clicked !");
-                    getShops(query);
+                    String barcode=getBarcode(query);
+                    if(barcode!=null){
+                        FirebaseFirestore fStore=FirebaseFirestore.getInstance();
+                        fStore.collection(constants.getOwner())
+                                .get()
+                                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                        // TODO: 23-02-2023 get list of shops
+                                        List<DocumentSnapshot> ids=queryDocumentSnapshots.getDocuments();
+                                        Log.d(TAG,"OWNER IDS "+ids.size());
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.d(TAG,"ERROR :"+e.getMessage());
+                                    }
+                                });
+                    }
                     newPoints = true;
 
                 }
@@ -198,61 +224,15 @@ public class SearchViewFragment extends Fragment {
     }
 
     String itemBarcodeSearched = null;
-    private void getShops(String query) {
-
-        Log.d(TAG,"getShops() called"+query);
+    private String getBarcode(String query) {
         //get barcode
         for(Map.Entry<String, String> entry: list.entrySet()) {
-            Log.d(TAG,"value :"+entry.getValue());
             if(entry.getValue().trim().equals(query.trim())) {
                 itemBarcodeSearched= entry.getKey();
-                break;
+                return itemBarcodeSearched;
             }
         }
-
-        if(itemBarcodeSearched!=null){
-            firebaseFirestore=FirebaseFirestore.getInstance();
-            firebaseFirestore.collection(constants.getOwner())
-                    .get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            Log.d(TAG,"getOwners called");
-                            List<DocumentSnapshot> ownerIds=queryDocumentSnapshots.getDocuments();
-                            //go through each owner
-                            for(DocumentSnapshot ownerId:ownerIds){
-                                //FirebaseFirestore firestore=FirebaseFirestore.getInstance();
-                                Log.d(TAG,"Owner email "+ownerId.getId());
-                                //check for availability
-                                /*
-                                firestore.collection(constants.getOwner()).document(ownerId.getId()).collection(constants.getOwnerAvailability())
-                                        .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                                            @Override
-                                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                                                Log.d(TAG,"Availability "+queryDocumentSnapshots.getDocuments().get(0).getId());
-                                            }
-                                        })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                Toast.makeText(getActivity(), "Error: "+e.getMessage(), Toast.LENGTH_SHORT).show();
-                                                Log.d(TAG,"Error !"+e.getMessage());
-                                            }
-                                        });
-
-                                 */
-
-                            }
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(getActivity(), "Error: "+e.getMessage(), Toast.LENGTH_SHORT).show();
-                            Log.e(TAG,e.getMessage());
-                        }
-                    });
-        }
+        return itemBarcodeSearched;
 
 
     }

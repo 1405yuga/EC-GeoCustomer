@@ -1,16 +1,21 @@
 package com.example.ec_geocustomer;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.example.ec_geocustomer.data.FiresStoreTableConstants;
 import com.example.ec_geocustomer.data.Profile;
 import com.example.ec_geocustomer.databinding.FragmentSettingsBinding;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -58,19 +63,25 @@ public class Settings extends Fragment {
         constants=new FiresStoreTableConstants();
         final String email = firebaseAuth.getCurrentUser().getEmail();
         // get details and displAy profile
-        firebaseFirestore.collection(constants.getCustomer()).document(email).collection(constants.getCustomerProfile()).get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        List<DocumentSnapshot> documentSnapshotList = queryDocumentSnapshots.getDocuments();
-                        DocumentSnapshot documentSnapshot = documentSnapshotList.get(0);
-                        Profile profile = documentSnapshot.toObject(Profile.class);
-                        binding.name.setText(profile.getName());
-                        binding.address.setText(profile.getAddress());
-                        binding.city.setText(profile.getCity());
-                        binding.mobile.setText(profile.getMobile() + "");
-                    }
-                });
+        firebaseFirestore.collection(constants.getCustomer()).document(email)
+                .get()
+                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            @Override
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                Profile profile=documentSnapshot.toObject(Profile.class);
+                                Log.d(TAG,"profile:"+profile);
+                                binding.name.setText(profile.getName());
+                                binding.address.setText(profile.getAddress());
+                                binding.city.setText(profile.getCity());
+                                binding.mobile.setText(profile.getMobile() + "");
+                            }
+                        })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.d(TAG,"failed "+e.getMessage());
+                                    }
+                                });
 
 
         binding.email.setText(firebaseAuth.getCurrentUser().getEmail());

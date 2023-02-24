@@ -1,5 +1,7 @@
 package com.example.ec_geocustomer;
 
+
+
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import androidx.annotation.NonNull;
@@ -11,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.ec_geocustomer.data.FiresStoreTableConstants;
 import com.example.ec_geocustomer.data.Profile;
 import com.example.ec_geocustomer.databinding.ActivityEmailBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -21,11 +24,13 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 public class Email extends AppCompatActivity {
 
     ActivityEmailBinding binding;
     FirebaseFirestore firebaseFirestore;
+    FiresStoreTableConstants constants;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,25 +85,24 @@ public class Email extends AppCompatActivity {
                                                     Intent intent=new Intent(Email.this,MainActivity.class);
 
                                                     Profile profile=(Profile) getIntent().getSerializableExtra("profile");
-
+                                                    constants=new FiresStoreTableConstants();
                                                     FirebaseFirestore fb=FirebaseFirestore.getInstance();
                                                     Log.d(TAG,"Profile :"+profile);
-                                                    fb.collection("Customer").document(binding.email.getEditText().getText().toString())
-                                                                    .collection("Profile")
-                                                                            .add(profile)
-                                                                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                    fb.collection(constants.getCustomer())
+                                                            .document(binding.email.getEditText().getText().toString())
+                                                                    .set(profile, SetOptions.merge())
+                                                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                                @Override
+                                                                                public void onSuccess(Void unused) {
+                                                                                    Log.d(TAG,"success");
+                                                                                }
+                                                                            })
+                                                                                    .addOnFailureListener(new OnFailureListener() {
                                                                                         @Override
-                                                                                        public void onSuccess(DocumentReference documentReference) {
-                                                                                            Toast.makeText(Email.this, "Added details !!", Toast.LENGTH_SHORT).show();
-
+                                                                                        public void onFailure(@NonNull Exception e) {
+                                                                                            Log.d(TAG,"failed: "+e.getMessage());
                                                                                         }
-                                                                                    })
-                                                                                            .addOnFailureListener(new OnFailureListener() {
-                                                                                                @Override
-                                                                                                public void onFailure(@NonNull Exception e) {
-                                                                                                    Toast.makeText(Email.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                                                                                                }
-                                                                                            });
+                                                                                    });
 
                                                     startActivity(intent);
                                                     finish();
