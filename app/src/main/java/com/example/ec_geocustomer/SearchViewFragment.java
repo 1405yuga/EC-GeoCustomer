@@ -2,13 +2,6 @@ package com.example.ec_geocustomer;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.widget.SearchView;
-import androidx.cursoradapter.widget.CursorAdapter;
-import androidx.cursoradapter.widget.SimpleCursorAdapter;
-import androidx.fragment.app.Fragment;
-
 import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.database.Cursor;
@@ -20,6 +13,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
+import androidx.cursoradapter.widget.CursorAdapter;
+import androidx.cursoradapter.widget.SimpleCursorAdapter;
+import androidx.fragment.app.Fragment;
 
 import com.example.ec_geocustomer.data.FiresStoreTableConstants;
 import com.example.ec_geocustomer.data.Profile;
@@ -45,74 +45,55 @@ import java.util.Map;
 
 public class SearchViewFragment extends Fragment {
 
+    private static String barcode;
     FragmentSearchViewBinding binding;
     boolean newPoints = false;
     ArrayList<LatLng> locationArrayList = new ArrayList<>();
+    //    MutableLiveData<ArrayList<LatLng>> testLive = new MutableLiveData<>(new ArrayList<>());
     LatLng sydney = new LatLng(-34, 151);
     LatLng TamWorth = new LatLng(-31.083332, 150.916672);
     LatLng NewCastle = new LatLng(-32.916668, 151.750000);
     LatLng Brisbane = new LatLng(-27.470125, 153.021072);
-    HashMap<String,String> list = new HashMap<>();
+    HashMap<String, String> list = new HashMap<>();
     SimpleCursorAdapter cursorAdapter;
-    FirebaseFirestore firebaseFirestore;
+    FirebaseFirestore firebaseFirestore, fStore;
     FirebaseAuth firebaseAuth;
     FiresStoreTableConstants constants;
-    private boolean isSuggestionClicked=false;
+    List<String> ShopsList;
+    String itemBarcodeSearched = null;
+    private boolean isSuggestionClicked = false;
 
-    private OnMapReadyCallback callback = new OnMapReadyCallback() {
-
-
-        /**
-         * Manipulates the map once available.
-         * This callback is triggered when the map is ready to be used.
-         * This is where we can add markers or lines, add listeners or move the camera.
-         * In this case, we just add a marker near Sydney, Australia.
-         * If Google Play services is not installed on the device, the user will be prompted to
-         * install it inside the SupportMapFragment. This method will only be triggered once the
-         * user has installed Google Play services and returned to the app.
-         */
+    private final OnMapReadyCallback callback = new OnMapReadyCallback() {
         @Override
         public void onMapReady(GoogleMap googleMap) {
-
+            Log.d(TAG, "onMapReady called");
             if (newPoints) {
-                for (int i = 0; i < locationArrayList.size(); i++) {
-                    googleMap.addMarker(new MarkerOptions().position(locationArrayList.get(i)).title("Marker"));
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLng(locationArrayList.get(i)));
+                Log.d(TAG, "size for new points - " + locationArrayList.size());
+                for (LatLng latLng : locationArrayList) {
+                    googleMap.addMarker(new MarkerOptions().position(latLng).title("new!!"));
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                 }
             } else {
-                firebaseAuth=FirebaseAuth.getInstance();
-                firebaseFirestore=FirebaseFirestore.getInstance();
-                constants=new FiresStoreTableConstants();
+                firebaseAuth = FirebaseAuth.getInstance();
+                firebaseFirestore = FirebaseFirestore.getInstance();
+                constants = new FiresStoreTableConstants();
                 final String email = firebaseAuth.getCurrentUser().getEmail();
                 firebaseFirestore.collection(constants.getCustomer()).document(email)
                         .get()
                         .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                             @Override
                             public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                Profile profile=documentSnapshot.toObject(Profile.class);
-                                Log.d(TAG,"profile:"+profile);
+                                Profile profile = documentSnapshot.toObject(Profile.class);
+                                Log.d(TAG, "profile:" + profile);
                                 LatLng you = new LatLng(profile.getLatitude(), profile.getLongitude());
                                 googleMap.addMarker(new MarkerOptions().position(you).title("You!!"));
                                 googleMap.moveCamera(CameraUpdateFactory.newLatLng(you));
                             }
                         })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.d(TAG,"failed "+e.getMessage());
-                            }
-                        });
-
-                /*
-                LatLng sydney = new LatLng(-34, 151);
-                googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-                googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-
-                 */
+                        .addOnFailureListener(e -> e.printStackTrace());
             }
         }
     };
-
 
     @Nullable
     @Override
@@ -120,20 +101,15 @@ public class SearchViewFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         binding = FragmentSearchViewBinding.bind(inflater.inflate(R.layout.fragment_search_view, container, false));
-
         // get itemnames
-        FirebaseFirestore firebaseFirestore=FirebaseFirestore.getInstance();
-        FiresStoreTableConstants constants=new FiresStoreTableConstants();
+        FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
+        FiresStoreTableConstants constants = new FiresStoreTableConstants();
         firebaseFirestore.collection(constants.getBarcode())
                 .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        List<DocumentSnapshot> documents=queryDocumentSnapshots.getDocuments();
-                        for(DocumentSnapshot documentSnapshot :documents){
-                            list.put(documentSnapshot.getId(),documentSnapshot.getString(constants.getBarcodeName()));
-                        }
-
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<DocumentSnapshot> documents = queryDocumentSnapshots.getDocuments();
+                    for (DocumentSnapshot documentSnapshot : documents) {
+                        list.put(documentSnapshot.getId(), documentSnapshot.getString(constants.getBarcodeName()));
                     }
                 });
         //set suggestion adapter
@@ -144,47 +120,55 @@ public class SearchViewFragment extends Fragment {
         binding.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                // TODO: 28-01-2023 display shops
-
-                locationArrayList.add(sydney);
-                locationArrayList.add(TamWorth);
-                locationArrayList.add(NewCastle);
-                locationArrayList.add(Brisbane);
-
-                if(isSuggestionClicked){
+                if (isSuggestionClicked) {
                     // get barcode of item clicked
-                    Log.d(TAG,"isSuggestion clicked !");
-                    String barcode=getBarcode(query);
-                    if(barcode!=null){
-                        FirebaseFirestore fStore=FirebaseFirestore.getInstance();
+                    Log.d(TAG, "isSuggestion clicked !");
+                    barcode = getBarcode(query);
+                    if (barcode != null) {
+                        fStore = FirebaseFirestore.getInstance();
+                        ShopsList = new ArrayList<>();
                         fStore.collection(constants.getOwner())
                                 .get()
                                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                                     @Override
                                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                                        // TODO: 23-02-2023 get list of shops
-                                        List<DocumentSnapshot> ids=queryDocumentSnapshots.getDocuments();
-                                        Log.d(TAG,"OWNER IDS "+ids.size());
+                                        //TODO: 23-02-2023 get list of shops
+                                        List<DocumentSnapshot> ids = queryDocumentSnapshots.getDocuments();
+                                        Log.d(TAG, "OWNER IDS " + ids.size());
+                                        for (DocumentSnapshot id : ids) {
+                                            fStore.collection(constants.getOwner()).document(id.getId()).collection(constants.getOwnerAvailability())
+                                                    .whereGreaterThan(constants.getOwnerQuantity(), 0)
+                                                    .get()
+                                                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                                        @Override
+                                                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                                            List<DocumentSnapshot> barcodeList = queryDocumentSnapshots.getDocuments();
+                                                            for (DocumentSnapshot documentSnapshot : barcodeList) {
+                                                                if (documentSnapshot.getId().equals(barcode)) {
+                                                                    ShopsList.add(id.getId());
+                                                                }
+                                                            }
+                                                            addShopsLatnLong(ShopsList);
+                                                            Log.d(TAG, "List of shops:" + ShopsList);
+                                                        }
+                                                    })
+                                                    .addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            Log.d(TAG, "Error: " + e.getMessage());
+                                                        }
+                                                    });
+                                        }
                                     }
                                 })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.d(TAG,"ERROR :"+e.getMessage());
-                                    }
-                                });
+                                .addOnFailureListener(e -> e.printStackTrace());
+                        newPoints = true;
                     }
-                    newPoints = true;
-
-                }
-                else{
+                } else {
                     Toast.makeText(getActivity(), "Select products from suggestion", Toast.LENGTH_SHORT).show();
                 }
-
                 binding.searchView.clearFocus();
                 onViewCreated(binding.getRoot(), savedInstanceState);
-
-
                 return true;
             }
 
@@ -207,7 +191,6 @@ public class SearchViewFragment extends Fragment {
         binding.searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
             @Override
             public boolean onSuggestionSelect(int position) {
-
                 return false;
             }
 
@@ -215,7 +198,7 @@ public class SearchViewFragment extends Fragment {
             public boolean onSuggestionClick(int position) {
                 Cursor cursor1 = (Cursor) cursorAdapter.getItem(position);
                 @SuppressLint("Range") String item = cursor1.getString(cursor1.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1));
-                isSuggestionClicked=true;
+                isSuggestionClicked = true;
                 binding.searchView.setQuery(item, true);
                 return true;
             }
@@ -223,18 +206,36 @@ public class SearchViewFragment extends Fragment {
         return binding.getRoot();
     }
 
-    String itemBarcodeSearched = null;
+    private void addShopsLatnLong(List<String> shopsList) {
+        newPoints = true;
+        if (shopsList.size() > 0) {
+            Log.d(TAG, "addshops called");
+            FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
+            ArrayList<LatLng> temp = new ArrayList<>();
+
+            for (String shopId : shopsList) {
+                firestore.collection(constants.getOwner()).document(shopId)
+                        .get()
+                        .addOnSuccessListener(documentSnapshot -> {
+                            Profile profile = documentSnapshot.toObject(Profile.class);
+                            temp.add(new LatLng(profile.getLatitude(), profile.getLongitude()));
+                            Log.d(TAG, "points " + profile.getLatitude() + " " + profile.getLongitude());
+                        })
+                        .addOnFailureListener(e -> Log.d(TAG, "error: " + e.getMessage()));
+            }
+        }
+    }
+
     private String getBarcode(String query) {
         //get barcode
-        for(Map.Entry<String, String> entry: list.entrySet()) {
-            if(entry.getValue().trim().equals(query.trim())) {
-                itemBarcodeSearched= entry.getKey();
+        for (Map.Entry<String, String> entry : list.entrySet()) {
+            if (entry.getValue().trim().equals(query.trim())) {
+                itemBarcodeSearched = entry.getKey();
                 return itemBarcodeSearched;
             }
         }
         return itemBarcodeSearched;
-
-
     }
 
     @Override
