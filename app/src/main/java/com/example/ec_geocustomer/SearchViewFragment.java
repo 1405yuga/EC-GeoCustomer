@@ -7,6 +7,7 @@ import android.app.SearchManager;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.BaseColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +21,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
 
 import com.example.ec_geocustomer.data.FiresStoreTableConstants;
 import com.example.ec_geocustomer.data.Profile;
@@ -28,6 +30,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -42,14 +45,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import kotlinx.coroutines.CoroutineScope;
+
 
 public class SearchViewFragment extends Fragment {
 
     private static String barcode;
     FragmentSearchViewBinding binding;
     boolean newPoints = false;
-    ArrayList<LatLng> locationArrayList = new ArrayList<>();
-    //    MutableLiveData<ArrayList<LatLng>> testLive = new MutableLiveData<>(new ArrayList<>());
+    //ArrayList<LatLng> locationArrayList = new ArrayList<>();
+    MutableLiveData<ArrayList<LatLng>> testLive = new MutableLiveData<>(new ArrayList<>());
     LatLng sydney = new LatLng(-34, 151);
     LatLng TamWorth = new LatLng(-31.083332, 150.916672);
     LatLng NewCastle = new LatLng(-32.916668, 151.750000);
@@ -61,17 +66,22 @@ public class SearchViewFragment extends Fragment {
     FiresStoreTableConstants constants;
     List<String> ShopsList;
     String itemBarcodeSearched = null;
+
+    SupportMapFragment mapFragment;
     private boolean isSuggestionClicked = false;
+
+    GoogleMap map;
 
     private final OnMapReadyCallback callback = new OnMapReadyCallback() {
         @Override
-        public void onMapReady(GoogleMap googleMap) {
+        public void onMapReady(@NonNull GoogleMap googleMap) {
+            map=googleMap;
             Log.d(TAG, "onMapReady called");
             if (newPoints) {
-                Log.d(TAG, "size for new points - " + locationArrayList.size());
-                for (LatLng latLng : locationArrayList) {
-                    googleMap.addMarker(new MarkerOptions().position(latLng).title("new!!"));
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                Log.d(TAG, "size for new points - " + testLive.getValue().size());
+                for (LatLng latLng : testLive.getValue()) {
+                    map.addMarker(new MarkerOptions().position(latLng).title("new!!"));
+                    map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                 }
             } else {
                 firebaseAuth = FirebaseAuth.getInstance();
@@ -86,8 +96,8 @@ public class SearchViewFragment extends Fragment {
                                 Profile profile = documentSnapshot.toObject(Profile.class);
                                 Log.d(TAG, "profile:" + profile);
                                 LatLng you = new LatLng(profile.getLatitude(), profile.getLongitude());
-                                googleMap.addMarker(new MarkerOptions().position(you).title("You!!"));
-                                googleMap.moveCamera(CameraUpdateFactory.newLatLng(you));
+                                map.addMarker(new MarkerOptions().position(you).title("You!!"));
+                                map.moveCamera(CameraUpdateFactory.newLatLng(you));
                             }
                         })
                         .addOnFailureListener(e -> e.printStackTrace());
@@ -100,6 +110,14 @@ public class SearchViewFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        testLive.observe(getViewLifecycleOwner(),latLngs -> {
+            for(LatLng l:latLngs){
+                Log.d(TAG,"LATLONG "+l);
+//                mapFragment.getMapAsync(callback);
+
+                    map.addMarker(new MarkerOptions().position(l).title("new"));
+                }
+        });
         binding = FragmentSearchViewBinding.bind(inflater.inflate(R.layout.fragment_search_view, container, false));
         // get itemnames
         FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
@@ -212,14 +230,16 @@ public class SearchViewFragment extends Fragment {
             Log.d(TAG, "addshops called");
             FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
-            ArrayList<LatLng> temp = new ArrayList<>();
+//            ArrayList<LatLng> temp = new ArrayList<>();
 
             for (String shopId : shopsList) {
                 firestore.collection(constants.getOwner()).document(shopId)
                         .get()
                         .addOnSuccessListener(documentSnapshot -> {
                             Profile profile = documentSnapshot.toObject(Profile.class);
+                            ArrayList<LatLng> temp=testLive.getValue();
                             temp.add(new LatLng(profile.getLatitude(), profile.getLongitude()));
+                            testLive.setValue(temp);
                             Log.d(TAG, "points " + profile.getLatitude() + " " + profile.getLongitude());
                         })
                         .addOnFailureListener(e -> Log.d(TAG, "error: " + e.getMessage()));
@@ -247,7 +267,7 @@ public class SearchViewFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        SupportMapFragment mapFragment =
+        mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
