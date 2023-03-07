@@ -31,4 +31,8 @@
     <string name="city_town">City/Town</string>
     <string name="_1234">1234</string>
     <string name="edit_profile">Edit profile</string>
+    <string name="Rs">\u20B9</string>
+    <string name="quantity">Quantity</string>
+    <string name="available">Available :</string>
+    <string name="pcs">pcs</string>
 </resources>

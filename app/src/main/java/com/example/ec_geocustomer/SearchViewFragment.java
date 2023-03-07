@@ -3,6 +3,7 @@ package com.example.ec_geocustomer;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.app.SearchManager;
 import android.database.Cursor;
 import android.database.MatrixCursor;
@@ -12,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,11 +23,13 @@ import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.example.ec_geocustomer.data.Availability;
 import com.example.ec_geocustomer.data.FiresStoreTableConstants;
 import com.example.ec_geocustomer.data.Profile;
 import com.example.ec_geocustomer.data.Shop;
 import com.example.ec_geocustomer.data.ShopProfile;
+import com.example.ec_geocustomer.databinding.DisplayProductDialogBinding;
 import com.example.ec_geocustomer.databinding.FragmentSearchViewBinding;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -85,8 +89,49 @@ public class SearchViewFragment extends Fragment {
                     public boolean onMarkerClick(@NonNull Marker marker) {
                         Shop shop = (Shop) marker.getTag();
                         Log.d(TAG,"on CLICK "+" shop obj"+shop.getShopname());
-// TODO: 07-03-2023 create dialog
+//                      create dialog
+                        Dialog dialog=new Dialog(getContext());
+                        DisplayProductDialogBinding dialogBinding=DisplayProductDialogBinding.inflate(getLayoutInflater());
+                        dialog.setContentView(dialogBinding.getRoot());
+                        dialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
+                        dialog.show();
 
+                        firebaseFirestore = FirebaseFirestore.getInstance();
+                        FiresStoreTableConstants constants = new FiresStoreTableConstants();
+                        firebaseFirestore.collection(constants.getBarcode()).document(itemBarcodeSearched).get()
+                                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                        if (documentSnapshot.exists()) {
+                                            Log.d(TAG, "Exists " + documentSnapshot.getString(constants.getBarcodeName()));
+                                            dialogBinding.productName.setText(documentSnapshot.getString(constants.getBarcodeName()));
+                                            dialogBinding.oldPrice.setText(documentSnapshot.getDouble(constants.getBarcodePrice()) + "");
+                                            Double d=documentSnapshot.getDouble(constants.getBarcodePrice());
+                                            final Double newPrice=d*(100-shop.getDiscount())/100;
+                                            dialogBinding.price.setText(newPrice.toString());
+                                            //set image
+                                            Glide
+                                                    .with(getActivity())
+                                                    .load(documentSnapshot.getString(constants.getBarcodeUrl()))
+                                                    .centerCrop()
+                                                    .into(dialogBinding.productImage);
+
+                                        } else {
+                                            Log.d(TAG, "Doesnt Exists");
+                                            dialogBinding.productName.setText("Doesnt exists");
+                                            dialogBinding.price.setText("Doesnt exists");
+                                        }
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.d(TAG, "Fails");
+                                    }
+                                });
+                        dialogBinding.shopname.setText(shop.getShopname());
+                        dialogBinding.discount.setText(shop.getDiscount().toString());
+                        dialogBinding.qtyAvail.setText(shop.getQuantity().toString());
                         return false;
                     }
                 });

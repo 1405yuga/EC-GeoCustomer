@@ -15,4 +15,16 @@ public class Shop extends ShopProfile{
 
     public Shop() {
     }
+
+    public Long getQuantity() {
+        return quantity;
+    }
+
+    public Double getDiscount() {
+        return discount;
+    }
+
+    public String getEmail() {
+        return email;
+    }
 }
