@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.BaseColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,6 +26,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.ec_geocustomer.data.FiresStoreTableConstants;
 import com.example.ec_geocustomer.data.Profile;
+import com.example.ec_geocustomer.data.ShopProfile;
 import com.example.ec_geocustomer.databinding.FragmentSearchViewBinding;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -45,16 +47,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import kotlinx.coroutines.CoroutineScope;
-
 
 public class SearchViewFragment extends Fragment {
 
     private static String barcode;
     FragmentSearchViewBinding binding;
     boolean newPoints = false;
-    //ArrayList<LatLng> locationArrayList = new ArrayList<>();
-    MutableLiveData<ArrayList<LatLng>> testLive = new MutableLiveData<>(new ArrayList<>());
+    ArrayList<LatLng> locationArrayList = new ArrayList<>();
+//    MutableLiveData<ArrayList<LatLng>> testLive = new MutableLiveData<>(new ArrayList<>());
     LatLng sydney = new LatLng(-34, 151);
     LatLng TamWorth = new LatLng(-31.083332, 150.916672);
     LatLng NewCastle = new LatLng(-32.916668, 151.750000);
@@ -68,18 +68,23 @@ public class SearchViewFragment extends Fragment {
     String itemBarcodeSearched = null;
 
     SupportMapFragment mapFragment;
-    private boolean isSuggestionClicked = false;
-
     GoogleMap map;
 
+    Runnable runnable;
     private final OnMapReadyCallback callback = new OnMapReadyCallback() {
         @Override
         public void onMapReady(@NonNull GoogleMap googleMap) {
-            map=googleMap;
+            map = googleMap;
             Log.d(TAG, "onMapReady called");
+            runnable= () -> {
+                for (LatLng latLng : locationArrayList) {
+                    map.addMarker(new MarkerOptions().position(latLng).title("new!!"));
+                    map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                }
+            };
             if (newPoints) {
-                Log.d(TAG, "size for new points - " + testLive.getValue().size());
-                for (LatLng latLng : testLive.getValue()) {
+                Log.d(TAG, "size for new points - " + locationArrayList.size());
+                for (LatLng latLng : locationArrayList) {
                     map.addMarker(new MarkerOptions().position(latLng).title("new!!"));
                     map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                 }
@@ -103,21 +108,25 @@ public class SearchViewFragment extends Fragment {
                         .addOnFailureListener(e -> e.printStackTrace());
             }
         }
+
+
     };
+    private boolean isSuggestionClicked = false;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        testLive.observe(getViewLifecycleOwner(),latLngs -> {
-            for(LatLng l:latLngs){
-                Log.d(TAG,"LATLONG "+l);
-//                mapFragment.getMapAsync(callback);
-
-                    map.addMarker(new MarkerOptions().position(l).title("new"));
-                }
-        });
+//        testLive.observe(getViewLifecycleOwner(), latLngs -> {
+//            try{
+//                runnable.run();
+//                Log.d(TAG,"runnable executed");
+//            }catch(Exception e){
+//                e.printStackTrace();
+//            };
+//
+//        });
         binding = FragmentSearchViewBinding.bind(inflater.inflate(R.layout.fragment_search_view, container, false));
         // get itemnames
         FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
@@ -179,6 +188,7 @@ public class SearchViewFragment extends Fragment {
                                         }
                                     }
                                 })
+
                                 .addOnFailureListener(e -> e.printStackTrace());
                         newPoints = true;
                     }
@@ -226,21 +236,28 @@ public class SearchViewFragment extends Fragment {
 
     private void addShopsLatnLong(List<String> shopsList) {
         newPoints = true;
+
         if (shopsList.size() > 0) {
+
             Log.d(TAG, "addshops called");
             FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-
-//            ArrayList<LatLng> temp = new ArrayList<>();
 
             for (String shopId : shopsList) {
                 firestore.collection(constants.getOwner()).document(shopId)
                         .get()
                         .addOnSuccessListener(documentSnapshot -> {
-                            Profile profile = documentSnapshot.toObject(Profile.class);
-                            ArrayList<LatLng> temp=testLive.getValue();
-                            temp.add(new LatLng(profile.getLatitude(), profile.getLongitude()));
-                            testLive.setValue(temp);
+                            ShopProfile profile = documentSnapshot.toObject(ShopProfile.class);
+//                            ArrayList<LatLng> temp = testLive.getValue();
+//                            temp.add(new LatLng(profile.getLatitude(), profile.getLongitude()));
+//                            testLive.setValue(temp);
+//                            map.addMarker(new MarkerOptions().position(new LatLng(profile.getLatitude(),profile.getLongitude())));
                             Log.d(TAG, "points " + profile.getLatitude() + " " + profile.getLongitude());
+                            Log.d(TAG, "isMap null: " + (map==null));
+                            LatLng latLng = new LatLng(profile.getLatitude(),profile.getLongitude());
+//                            locationArrayList.add(latLng);
+                            map.addMarker(new MarkerOptions().position(latLng).title(profile.getShopname()).icon(BitmapDescriptorFactory.defaultMarker(30)));
+                            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,10));
+                            map.animateCamera(CameraUpdateFactory.zoomIn());
                         })
                         .addOnFailureListener(e -> Log.d(TAG, "error: " + e.getMessage()));
             }
