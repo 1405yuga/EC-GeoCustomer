@@ -22,6 +22,8 @@ import androidx.appcompat.widget.SearchView;
 import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.ec_geocustomer.data.Availability;
@@ -31,6 +33,9 @@ import com.example.ec_geocustomer.data.Shop;
 import com.example.ec_geocustomer.data.ShopProfile;
 import com.example.ec_geocustomer.databinding.DisplayProductDialogBinding;
 import com.example.ec_geocustomer.databinding.FragmentSearchViewBinding;
+import com.example.ec_geocustomer.databinding.RecommendDialogBinding;
+import com.example.ec_geocustomer.recommendation.RecommendationAdapter;
+import com.example.ec_geocustomer.recommendation.RecommendationData;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -68,7 +73,7 @@ public class SearchViewFragment extends Fragment {
     FirebaseAuth firebaseAuth;
     FiresStoreTableConstants constants = new FiresStoreTableConstants();
     HashMap<String,Availability> ShopsList=new HashMap<>();
-    String itemBarcodeSearched = null;
+    String itemBarcodeSearched = null,subCategory=null;
 
     SupportMapFragment mapFragment;
     GoogleMap map;
@@ -106,6 +111,7 @@ public class SearchViewFragment extends Fragment {
                                             Log.d(TAG, "Exists " + documentSnapshot.getString(constants.getBarcodeName()));
                                             dialogBinding.productName.setText(documentSnapshot.getString(constants.getBarcodeName()));
                                             dialogBinding.oldPrice.setText(documentSnapshot.getDouble(constants.getBarcodePrice()) + "");
+                                            subCategory = documentSnapshot.getString(constants.getBarcodeSubCatgeory());
                                             Double d=documentSnapshot.getDouble(constants.getBarcodePrice());
                                             final Double newPrice=d*(100-shop.getDiscount())/100;
                                             dialogBinding.price.setText(newPrice.toString());
@@ -132,6 +138,22 @@ public class SearchViewFragment extends Fragment {
                         dialogBinding.shopname.setText(shop.getShopname());
                         dialogBinding.discount.setText(shop.getDiscount().toString());
                         dialogBinding.qtyAvail.setText(shop.getQuantity().toString());
+                        dialogBinding.buyBtn.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                // TODO: 11-03-2023 check qty n available
+                                firebaseFirestore.collection("Associative rules").document("final_rules")
+                                        .get()
+                                        .addOnSuccessListener(documentSnapshot -> {
+                                            // TODO: 11-03-2023 pass correct sub category
+                                            recommend(subCategory);
+                                            Log.d(TAG,documentSnapshot.get("{'Biscuits'}").toString());
+                                        })
+                                        .addOnFailureListener(e -> {
+
+                                        });
+                            }
+                        });
                         return false;
                     }
                 });
@@ -158,6 +180,8 @@ public class SearchViewFragment extends Fragment {
 
 
     };
+
+
 
 
     private boolean isSuggestionClicked = false;
@@ -319,6 +343,22 @@ public class SearchViewFragment extends Fragment {
             }
         }
         return itemBarcodeSearched;
+    }
+
+    private void recommend(String subCategory) {
+        if(subCategory!=null){
+            // TODO: 11-03-2023 fetch associative rule & display dialog
+            Dialog dialog1=new Dialog(getContext());
+            RecommendDialogBinding recommendDialogBinding= RecommendDialogBinding.inflate(getLayoutInflater());
+            dialog1.setContentView(recommendDialogBinding.getRoot());
+            dialog1.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
+            dialog1.show();
+
+            ArrayList<RecommendationData> arrayList = new ArrayList<>();
+            arrayList.add(new RecommendationData("img","xys"));
+            recommendDialogBinding.recycler1.setLayoutManager(new LinearLayoutManager(getActivity()));
+            recommendDialogBinding.recycler1.setAdapter(new RecommendationAdapter(arrayList,getActivity()));
+        }
     }
 
     @Override

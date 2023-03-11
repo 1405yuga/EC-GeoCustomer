@@ -142,11 +142,12 @@
 
 
         <Button
-            android:id="@+id/addBtn"
+            android:id="@+id/buyBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:text="Buy" />
+            android:text="Buy"
+            android:textSize="15dp"/>
 
 
 
