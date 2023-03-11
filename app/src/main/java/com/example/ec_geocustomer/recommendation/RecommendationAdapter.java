@@ -1,6 +1,9 @@
 package com.example.ec_geocustomer.recommendation;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,11 +33,13 @@ public class RecommendationAdapter extends RecyclerView.Adapter<RecommendationAd
     public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View view = inflater.inflate(R.layout.recommended_item, parent, false);
+
         return new Holder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull Holder holder, int position) {
+        Log.d(TAG,"adapter list : "+recommendationDataArrayList.get(position).getProductName());
         Glide
                 .with(context)
                 .load(recommendationDataArrayList.get(position).getImageurl())

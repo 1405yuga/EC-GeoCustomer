@@ -15,6 +15,11 @@ public class FiresStoreTableConstants {
     final String barcodeUrl = "url";
 
 
+    //Associative rules database
+    final String associativeRules="Associative rules";
+    final String finalRules="final_rules";
+
+
     //owner database
     final String ownerAvailability = "Availability";
     final String ownerDiscount="discount";
@@ -77,5 +82,13 @@ public class FiresStoreTableConstants {
 
     public String getCustomerProfile() {
         return customerProfile;
+    }
+
+    public String getAssociativeRules() {
+        return associativeRules;
+    }
+
+    public String getFinalRules() {
+        return finalRules;
     }
 }

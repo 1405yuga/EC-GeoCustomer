@@ -1,10 +1,11 @@
 package com.example.ec_geocustomer.recommendation;
 
 public class RecommendationData {
-    String Imageurl,productName;
+    String imageurl,productName;
+
 
     public RecommendationData(String imageurl, String productName) {
-        Imageurl = imageurl;
+        this.imageurl = imageurl;
         this.productName = productName;
     }
 
@@ -12,7 +13,7 @@ public class RecommendationData {
     }
 
     public String getImageurl() {
-        return Imageurl;
+        return imageurl;
     }
 
     public String getProductName() {

@@ -141,17 +141,24 @@ public class SearchViewFragment extends Fragment {
                         dialogBinding.buyBtn.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                // TODO: 11-03-2023 check qty n available
-                                firebaseFirestore.collection("Associative rules").document("final_rules")
-                                        .get()
-                                        .addOnSuccessListener(documentSnapshot -> {
-                                            // TODO: 11-03-2023 pass correct sub category
-                                            recommend(subCategory);
-                                            Log.d(TAG,documentSnapshot.get("{'Biscuits'}").toString());
-                                        })
-                                        .addOnFailureListener(e -> {
+                                //  check qty n available
+                                if(dialogBinding.qty.getEditText().getText().toString().isEmpty() || Integer.parseInt(dialogBinding.qty.getEditText().getText().toString())<=0 ){
+                                    dialogBinding.qty.setError("Enter proper quantity required");
+                                    return;
+                                }
+                                if(shop.getQuantity()>=Integer.parseInt(dialogBinding.qty.getEditText().getText().toString())){
+                                    dialog.dismiss();
+                                    firebaseFirestore.collection("Associative rules").document("final_rules")
+                                            .get()
+                                            .addOnSuccessListener(documentSnapshot -> {
+                                                //  pass correct sub category
+                                                recommend(subCategory);
+                                            })
+                                            .addOnFailureListener(e -> {
 
-                                        });
+                                            });
+                                }
+
                             }
                         });
                         return false;
@@ -348,16 +355,58 @@ public class SearchViewFragment extends Fragment {
     private void recommend(String subCategory) {
         if(subCategory!=null){
             // TODO: 11-03-2023 fetch associative rule & display dialog
+            String finalSubCategory ="{'"+subCategory+"'}";
+
             Dialog dialog1=new Dialog(getContext());
             RecommendDialogBinding recommendDialogBinding= RecommendDialogBinding.inflate(getLayoutInflater());
             dialog1.setContentView(recommendDialogBinding.getRoot());
             dialog1.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
             dialog1.show();
-
             ArrayList<RecommendationData> arrayList = new ArrayList<>();
-            arrayList.add(new RecommendationData("img","xys"));
+
             recommendDialogBinding.recycler1.setLayoutManager(new LinearLayoutManager(getActivity()));
-            recommendDialogBinding.recycler1.setAdapter(new RecommendationAdapter(arrayList,getActivity()));
+            RecommendationAdapter myAdapter=new RecommendationAdapter(arrayList,getActivity());
+            recommendDialogBinding.recycler1.setAdapter(myAdapter);
+
+            final String[] predictedSubCategory = {null};
+            firebaseFirestore.collection(constants.getAssociativeRules()).document(constants.getFinalRules())
+                    .get()
+                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+
+                            predictedSubCategory[0] =documentSnapshot.get(finalSubCategory).toString();
+                            predictedSubCategory[0]=predictedSubCategory[0].substring(1,predictedSubCategory[0].length()-1);
+                            Log.d(TAG,predictedSubCategory[0]);
+                            firebaseFirestore.collection(constants.getBarcode()).whereEqualTo(constants.getBarcodeSubCatgeory(),predictedSubCategory[0])
+                                    .get()
+                                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                            List<DocumentSnapshot> recommendationProducts=queryDocumentSnapshots.getDocuments();
+                                            Log.d(TAG,"Entered success listener"+recommendationProducts.size());
+                                            for(DocumentSnapshot documentSnapshot1:recommendationProducts){
+                                                Log.d(TAG,"recommend "+documentSnapshot1.get(constants.getBarcodeName()));
+                                                arrayList.add(new RecommendationData(documentSnapshot1.get(constants.getBarcodeUrl()).toString(),documentSnapshot1.get(constants.getBarcodeName()).toString()));
+                                            }
+
+                                            myAdapter.notifyDataSetChanged();
+
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    });
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        e.printStackTrace();
+                    });
+
+
         }
     }
 
