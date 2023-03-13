@@ -30,9 +30,6 @@ public class Menus extends AppCompatActivity {
                     case R.id.search:
                         ReplaceFragment(new SearchViewFragment());
                         break;
-                    case R.id.scanner:
-                        ReplaceFragment(new ScannerFragment());
-                        break;
                     case R.id.settings:
                         ReplaceFragment(new Settings());
                         break;

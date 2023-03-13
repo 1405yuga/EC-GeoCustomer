@@ -64,6 +64,7 @@ public class PaymentActivity extends AppCompatActivity {
         binding.discount.setText(shop.getDiscount().toString());
         binding.qtyAvail.setText(shop.getQuantity().toString());
         binding.qtyPurchased.setText(getIntent().getStringExtra("qty_purchased"));
+        recommend(itemBarcode.getSubCategory());
         Log.d(TAG,"qty purchased received "+getIntent().getStringExtra("qty_purchased"));
         Glide
                 .with(this)
@@ -99,13 +100,14 @@ public class PaymentActivity extends AppCompatActivity {
                         @Override
                         public void onTransactionCompleted(@NonNull TransactionDetails transactionDetails) {
                             Toast.makeText(PaymentActivity.this, "Ordered placed successfully !", Toast.LENGTH_LONG).show();
-                            Log.d(TAG,"transaction completed");
+                            Log.d(TAG,"transaction completed with transactionID: "+transcId);
+                            finish();
                         }
 
                         @Override
                         public void onTransactionCancelled() {
                             Toast.makeText(PaymentActivity.this, "Transaction Cancelled!", Toast.LENGTH_LONG).show();
-                            Log.d(TAG,"transaction cancelled");
+                            Log.d(TAG,transcId+" transaction cancelled");
                         }
                     });
                 } catch (AppNotFoundException e) {
@@ -113,13 +115,87 @@ public class PaymentActivity extends AppCompatActivity {
                     e.getStackTrace();
                 }
 
-
-
-
+            }
+        });
+        binding.backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
             }
         });
 
 
+    }
+
+    private void recommend(String subCategory) {
+        if(subCategory!=null){
+            //  fetch associative rule & display dialog
+            String finalSubCategory ="{'"+subCategory+"'}";
+
+
+            ArrayList<RecommendationData> arrayList = new ArrayList<>();
+
+            binding.recycler2.setLayoutManager(new LinearLayoutManager(getApplicationContext(),LinearLayoutManager.HORIZONTAL,false));
+            RecommendationAdapter myAdapter=new RecommendationAdapter(arrayList,getApplicationContext());
+            binding.recycler2.setAdapter(myAdapter);
+
+            final String[] predictedSubCategory = {null};
+            firebaseFirestore.collection(constants.getAssociativeRules()).document(constants.getFinalRules())
+                    .get()
+                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+
+                            predictedSubCategory[0] =documentSnapshot.get(finalSubCategory).toString();
+                            predictedSubCategory[0]=predictedSubCategory[0].substring(1,predictedSubCategory[0].length()-1);
+                            Log.d(TAG,predictedSubCategory[0]);
+                            firebaseFirestore.collection(constants.getBarcode()).whereEqualTo(constants.getBarcodeSubCatgeory(),predictedSubCategory[0])
+                                    .get()
+                                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                            List<DocumentSnapshot> recommendationProducts=queryDocumentSnapshots.getDocuments();
+                                            Log.d(TAG,"Entered success listener"+recommendationProducts.size());
+                                            for(DocumentSnapshot documentSnapshot1:recommendationProducts){
+                                                Log.d(TAG,"recommend "+documentSnapshot1.get(constants.getBarcodeName()));
+                                                arrayList.add(new RecommendationData(documentSnapshot1.get(constants.getBarcodeUrl()).toString(),documentSnapshot1.get(constants.getBarcodeName()).toString()));
+                                            }
+
+                                            myAdapter.notifyDataSetChanged();
+
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    });
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        e.printStackTrace();
+                    });
+
+            binding.recycler2.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+                @Override
+                public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                    return false;
+                }
+
+                @Override
+                public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+
+                }
+
+                @Override
+                public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+                }
+            });
+
+
+        }
     }
 
 }

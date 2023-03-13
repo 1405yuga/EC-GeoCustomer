@@ -153,16 +153,6 @@ public class SearchViewFragment extends Fragment {
                                 }
                                 if(shop.getQuantity()>=Integer.parseInt(dialogBinding.qty.getEditText().getText().toString())){
                                     dialog.dismiss();
-                                    //getting associative rule for recommendation
-                                    firebaseFirestore.collection("Associative rules").document("final_rules")
-                                            .get()
-                                            .addOnSuccessListener(documentSnapshot -> {
-                                                //  pass correct sub category
-                                                recommend(subCategory);
-                                            })
-                                            .addOnFailureListener(e -> {
-
-                                            });
 
                                     //  go to payment activity req:shop,qty_purchased,item/barcode profile
                                     Intent intent = new Intent(getActivity(),PaymentActivity.class);
@@ -367,80 +357,7 @@ public class SearchViewFragment extends Fragment {
         return itemBarcodeSearched;
     }
 
-    private void recommend(String subCategory) {
-        if(subCategory!=null){
-            //  fetch associative rule & display dialog
-            String finalSubCategory ="{'"+subCategory+"'}";
 
-            Dialog dialog1=new Dialog(getContext());
-            RecommendDialogBinding recommendDialogBinding= RecommendDialogBinding.inflate(getLayoutInflater());
-            dialog1.setContentView(recommendDialogBinding.getRoot());
-            dialog1.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
-            dialog1.show();
-            ArrayList<RecommendationData> arrayList = new ArrayList<>();
-
-            recommendDialogBinding.recycler1.setLayoutManager(new LinearLayoutManager(getActivity()));
-            RecommendationAdapter myAdapter=new RecommendationAdapter(arrayList,getActivity());
-            recommendDialogBinding.recycler1.setAdapter(myAdapter);
-
-            final String[] predictedSubCategory = {null};
-            firebaseFirestore.collection(constants.getAssociativeRules()).document(constants.getFinalRules())
-                    .get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-
-                            predictedSubCategory[0] =documentSnapshot.get(finalSubCategory).toString();
-                            predictedSubCategory[0]=predictedSubCategory[0].substring(1,predictedSubCategory[0].length()-1);
-                            Log.d(TAG,predictedSubCategory[0]);
-                            firebaseFirestore.collection(constants.getBarcode()).whereEqualTo(constants.getBarcodeSubCatgeory(),predictedSubCategory[0])
-                                    .get()
-                                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                                            List<DocumentSnapshot> recommendationProducts=queryDocumentSnapshots.getDocuments();
-                                            Log.d(TAG,"Entered success listener"+recommendationProducts.size());
-                                            for(DocumentSnapshot documentSnapshot1:recommendationProducts){
-                                                Log.d(TAG,"recommend "+documentSnapshot1.get(constants.getBarcodeName()));
-                                                arrayList.add(new RecommendationData(documentSnapshot1.get(constants.getBarcodeUrl()).toString(),documentSnapshot1.get(constants.getBarcodeName()).toString()));
-                                            }
-
-                                            myAdapter.notifyDataSetChanged();
-
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                    });
-                        }
-                    })
-                    .addOnFailureListener(e -> {
-                        e.printStackTrace();
-                    });
-
-            recommendDialogBinding.recycler1.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
-                @Override
-                public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
-                    return false;
-                }
-
-                @Override
-                public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
-
-                }
-
-                @Override
-                public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-
-                }
-            });
-
-
-        }
-    }
 
     @Override
     public void onDestroyView() {
