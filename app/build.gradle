@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.ec_geocustomer"
-        minSdk 30
+        minSdk 29
         targetSdk 32
         versionCode 1
         versionName "1.0"
@@ -50,5 +50,5 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.14.2'
 
     //------------------------------------------------------------------------------------------upi payment
-//    implementation 'dev.shreyaspatil.EasyUpiPayment:EasyUpiPayment:2.0'
+    implementation 'dev.shreyaspatil.EasyUpiPayment:EasyUpiPayment:3.0.2'
 }
