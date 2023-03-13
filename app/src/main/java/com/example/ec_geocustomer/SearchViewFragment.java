@@ -5,12 +5,14 @@ import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.SearchManager;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -28,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.ec_geocustomer.data.Availability;
 import com.example.ec_geocustomer.data.FiresStoreTableConstants;
+import com.example.ec_geocustomer.data.ItemBarcode;
 import com.example.ec_geocustomer.data.Profile;
 import com.example.ec_geocustomer.data.Shop;
 import com.example.ec_geocustomer.data.ShopProfile;
@@ -57,16 +60,13 @@ import java.util.List;
 import java.util.Map;
 
 
+
 public class SearchViewFragment extends Fragment {
 
     private static String barcode;
     FragmentSearchViewBinding binding;
     boolean newPoints = false;
     HashMap<String,LatLng> shopsWithId = new HashMap<>();
-    LatLng sydney = new LatLng(-34, 151);
-    LatLng TamWorth = new LatLng(-31.083332, 150.916672);
-    LatLng NewCastle = new LatLng(-32.916668, 151.750000);
-    LatLng Brisbane = new LatLng(-27.470125, 153.021072);
     HashMap<String, String> list = new HashMap<>();
     SimpleCursorAdapter cursorAdapter;
     FirebaseFirestore firebaseFirestore, fStore;
@@ -78,7 +78,8 @@ public class SearchViewFragment extends Fragment {
     SupportMapFragment mapFragment;
     GoogleMap map;
 
-    Runnable runnable;
+    ItemBarcode itemBarcode;
+
     private final OnMapReadyCallback callback = new OnMapReadyCallback() {
         @Override
         public void onMapReady(@NonNull GoogleMap googleMap) {
@@ -109,16 +110,20 @@ public class SearchViewFragment extends Fragment {
                                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                                         if (documentSnapshot.exists()) {
                                             Log.d(TAG, "Exists " + documentSnapshot.getString(constants.getBarcodeName()));
-                                            dialogBinding.productName.setText(documentSnapshot.getString(constants.getBarcodeName()));
-                                            dialogBinding.oldPrice.setText(documentSnapshot.getDouble(constants.getBarcodePrice()) + "");
-                                            subCategory = documentSnapshot.getString(constants.getBarcodeSubCatgeory());
-                                            Double d=documentSnapshot.getDouble(constants.getBarcodePrice());
+                                            itemBarcode =new ItemBarcode(documentSnapshot.getId(),documentSnapshot.getString(constants.getBarcodeName()),
+                                                    documentSnapshot.getString(constants.getBarcodeCategory()),documentSnapshot.getString(constants.getBarcodeSubCatgeory()),
+                                                    documentSnapshot.getString(constants.getBarcodeSize()),documentSnapshot.getString(constants.getBarcodeUrl()),
+                                                    documentSnapshot.getString(constants.getBarcodeBrand()), documentSnapshot.getDouble(constants.getBarcodePrice()));
+                                            dialogBinding.productName.setText(itemBarcode.getName());
+                                            dialogBinding.oldPrice.setText(itemBarcode.getMrp().toString());
+                                            subCategory = itemBarcode.getSubCategory();
+                                            Double d=itemBarcode.getMrp();
                                             final Double newPrice=d*(100-shop.getDiscount())/100;
                                             dialogBinding.price.setText(newPrice.toString());
                                             //set image
                                             Glide
                                                     .with(getActivity())
-                                                    .load(documentSnapshot.getString(constants.getBarcodeUrl()))
+                                                    .load(itemBarcode.getUrl())
                                                     .centerCrop()
                                                     .into(dialogBinding.productImage);
 
@@ -148,6 +153,7 @@ public class SearchViewFragment extends Fragment {
                                 }
                                 if(shop.getQuantity()>=Integer.parseInt(dialogBinding.qty.getEditText().getText().toString())){
                                     dialog.dismiss();
+                                    //getting associative rule for recommendation
                                     firebaseFirestore.collection("Associative rules").document("final_rules")
                                             .get()
                                             .addOnSuccessListener(documentSnapshot -> {
@@ -157,6 +163,13 @@ public class SearchViewFragment extends Fragment {
                                             .addOnFailureListener(e -> {
 
                                             });
+
+                                    //  go to payment activity req:shop,qty_purchased,item/barcode profile
+                                    Intent intent = new Intent(getActivity(),PaymentActivity.class);
+                                    intent.putExtra("shop",shop);
+                                    intent.putExtra("qty_purchased",dialogBinding.qty.getEditText().getText().toString());
+                                    intent.putExtra("itembarcode",itemBarcode);
+                                    startActivity(intent);
                                 }
 
                             }
@@ -190,8 +203,10 @@ public class SearchViewFragment extends Fragment {
 
 
 
-
     private boolean isSuggestionClicked = false;
+
+    public SearchViewFragment() {
+    }
 
     @Nullable
     @Override
@@ -354,7 +369,7 @@ public class SearchViewFragment extends Fragment {
 
     private void recommend(String subCategory) {
         if(subCategory!=null){
-            // TODO: 11-03-2023 fetch associative rule & display dialog
+            //  fetch associative rule & display dialog
             String finalSubCategory ="{'"+subCategory+"'}";
 
             Dialog dialog1=new Dialog(getContext());
@@ -405,6 +420,23 @@ public class SearchViewFragment extends Fragment {
                     .addOnFailureListener(e -> {
                         e.printStackTrace();
                     });
+
+            recommendDialogBinding.recycler1.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+                @Override
+                public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                    return false;
+                }
+
+                @Override
+                public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+
+                }
+
+                @Override
+                public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+                }
+            });
 
 
         }

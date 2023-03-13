@@ -3,6 +3,7 @@ package com.example.ec_geocustomer.recommendation;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.ec_geocustomer.R;
+import com.example.ec_geocustomer.SearchViewFragment;
 
 import java.util.ArrayList;
 
@@ -46,6 +48,14 @@ public class RecommendationAdapter extends RecyclerView.Adapter<RecommendationAd
                 .centerCrop()
                 .into(holder.imgView);
         holder.productname.setText(recommendationDataArrayList.get(position).getProductName());
+        final int p=position;
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG,"itemView clicked "+p);
+
+            }
+        });
 
     }
 
@@ -55,13 +65,19 @@ public class RecommendationAdapter extends RecyclerView.Adapter<RecommendationAd
     }
 
 
+
+
     public class Holder extends RecyclerView.ViewHolder {
         ImageView imgView;
         TextView productname;
+        View itemView;
         public Holder(@NonNull View itemView) {
             super(itemView);
             imgView=itemView.findViewById(R.id.product_image);
             productname=itemView.findViewById(R.id.product_name);
+            this.itemView=itemView;
         }
+
+
     }
 }

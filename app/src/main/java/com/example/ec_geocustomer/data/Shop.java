@@ -1,6 +1,8 @@
 package com.example.ec_geocustomer.data;
 
-public class Shop extends ShopProfile{
+import java.io.Serializable;
+
+public class Shop extends ShopProfile implements Serializable {
 
     Long quantity;
     Double discount;
