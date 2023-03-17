@@ -6,114 +6,149 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".Settings"
     android:layout_margin="10dp">
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/materialCardView2"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="92dp"
-            android:fontFamily="@font/calistoga"
-            android:text="@string/your_s_profile"
-            android:textColor="#EF6C00"
-            android:textSize="36sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.055"
+            android:backgroundTint="#F8F3CA"
+            android:padding="6dp"
+            app:cardCornerRadius="4dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-        </TextView>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="12dp"
-            android:fontFamily="@font/abhaya_libre_extrabold"
-            android:text="@string/name"
-            android:textColor="@color/textcolor"
-            android:textSize="25sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView" />
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="10dp"
+                    android:fontFamily="@font/calistoga"
+                    android:text="@string/your_s_profile"
+                    android:textColor="#EF6C00"
+                    android:textSize="36sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.055"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/address"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:fontFamily="@font/abhaya_libre_semibold"
-            android:text="@string/address_line_1"
-            android:textColor="@color/textcolor"
-            android:textSize="20sp"
-            app:layout_constraintTop_toBottomOf="@+id/name"
-            android:layout_marginStart="8dp"/>
+                </TextView>
 
-        <TextView
-            android:id="@+id/city"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/abhaya_libre_semibold"
-            android:text="@string/city_town"
-            android:textColor="@color/textcolor"
-            android:textSize="20sp"
-            app:layout_constraintTop_toBottomOf="@+id/address"
-            tools:layout_editor_absoluteX="16dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="4dp"/>
+                <TextView
+                    android:id="@+id/name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="12dp"
+                    android:fontFamily="@font/abhaya_libre_extrabold"
+                    android:text="@string/name"
+                    android:textColor="@color/textcolor"
+                    android:textSize="25sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textView" />
 
-        <TextView
-            android:id="@+id/mobile"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/abhaya_libre_semibold"
-            android:text="@string/_1234"
-            android:textColor="@color/textcolor"
-            android:textSize="20sp"
-            app:layout_constraintTop_toBottomOf="@+id/city"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="4dp" />
-        <TextView
-            android:id="@+id/email"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/abhaya_libre_semibold"
-            android:text="@string/email"
-            android:textColor="@color/textcolor"
-            android:textSize="20sp"
-            app:layout_constraintTop_toBottomOf="@+id/mobile"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="4dp" />
+                <TextView
+                    android:id="@+id/address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="18dp"
+                    android:fontFamily="@font/abhaya_libre_semibold"
+                    android:text="@string/address_line_1"
+                    android:textColor="@color/textcolor"
+                    android:textSize="20sp"
+                    app:layout_constraintTop_toBottomOf="@+id/name" />
 
-        <Button
-            android:id="@+id/editBtn"
+                <TextView
+                    android:id="@+id/city"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="@font/abhaya_libre_semibold"
+                    android:text="@string/city_town"
+                    android:textColor="@color/textcolor"
+                    android:textSize="20sp"
+                    app:layout_constraintTop_toBottomOf="@+id/address"
+                    tools:layout_editor_absoluteX="16dp" />
+
+                <TextView
+                    android:id="@+id/mobile"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="@font/abhaya_libre_semibold"
+                    android:text="@string/_1234"
+                    android:textColor="@color/textcolor"
+                    android:textSize="20sp"
+                    app:layout_constraintTop_toBottomOf="@+id/city" />
+
+                <TextView
+                    android:id="@+id/email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="@font/abhaya_libre_semibold"
+                    android:text="@string/email"
+                    android:textColor="@color/textcolor"
+                    android:textSize="20sp"
+                    app:layout_constraintTop_toBottomOf="@+id/mobile" />
+
+
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:padding="14sp"
-            android:text="@string/edit_profile"
+            android:padding="6dp"
+            android:layout_marginTop="4dp"
+            app:cardCornerRadius="4dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/email" />
+            app:layout_constraintTop_toBottomOf="@+id/materialCardView2">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:fontFamily="@font/calistoga"
+                    android:text="Orders"
+                    android:textColor="#EF6C00"
+                    android:textSize="36sp"
+                    android:textStyle="bold">
 
-        <Button
-            android:id="@+id/logout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:padding="14sp"
-            android:text="@string/logout"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editBtn" />
+                </TextView>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/ordersRV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    ></androidx.recyclerview.widget.RecyclerView>
+            </LinearLayout>
+
+
+        </com.google.android.material.card.MaterialCardView>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
 
 
 

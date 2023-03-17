@@ -36,9 +36,6 @@ import com.example.ec_geocustomer.data.Shop;
 import com.example.ec_geocustomer.data.ShopProfile;
 import com.example.ec_geocustomer.databinding.DisplayProductDialogBinding;
 import com.example.ec_geocustomer.databinding.FragmentSearchViewBinding;
-import com.example.ec_geocustomer.databinding.RecommendDialogBinding;
-import com.example.ec_geocustomer.recommendation.RecommendationAdapter;
-import com.example.ec_geocustomer.recommendation.RecommendationData;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -329,7 +326,7 @@ public class SearchViewFragment extends Fragment {
                             LatLng latLng = new LatLng(profile.getLatitude(), profile.getLongitude());
 //                            locationArrayList.add(latLng);
                             shopsWithId.put(shopId.getKey(),latLng);
-                            Shop shop = new Shop(profile.getShopname(),profile.getOwnername(),profile.getAddress(),profile.getCity(),
+                            Shop shop = new Shop(profile.getShopname(),profile.getOwnername(),profile.getAddress(),profile.getCity(), profile.getUpiId(),
                                     profile.getMobile(),profile.getLatitude(),profile.getLongitude(),shopId.getValue().getQuantity(), shopId.getValue().getDiscount(), shopId.getKey());
                             Marker m=map.addMarker(new MarkerOptions().
                                     position(latLng).

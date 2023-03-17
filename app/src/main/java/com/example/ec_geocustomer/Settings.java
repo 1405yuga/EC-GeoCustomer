@@ -86,21 +86,9 @@ public class Settings extends Fragment {
 
         binding.email.setText(firebaseAuth.getCurrentUser().getEmail());
 
-        binding.editBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // TODO: 27-01-2023 edit profile
-            }
-        });
 
-        binding.logout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(getActivity(), MainActivity.class));
-                getActivity().onBackPressed();
-            }
-        });
+
+
         return binding.getRoot();
     }
 }

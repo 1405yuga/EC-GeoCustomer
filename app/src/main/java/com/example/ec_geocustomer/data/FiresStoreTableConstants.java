@@ -24,6 +24,11 @@ public class FiresStoreTableConstants {
     final String ownerAvailability = "Availability";
     final String ownerDiscount="discount";
     final String ownerQuantity="quantity";
+    final String ownerOrders="Orders";
+
+    final String orderDelivered="DELIVERED";
+    final String orderNotDelivered="NOT DELIVERED";
+    final String orderCancelled="CANCELLED";
 
     //customer database
     final String customerProfile="Profile";
@@ -90,5 +95,21 @@ public class FiresStoreTableConstants {
 
     public String getFinalRules() {
         return finalRules;
+    }
+
+    public String getOwnerOrders() {
+        return ownerOrders;
+    }
+
+    public String getOrderDelivered() {
+        return orderDelivered;
+    }
+
+    public String getOrderNotDelivered() {
+        return orderNotDelivered;
+    }
+
+    public String getOrderCancelled() {
+        return orderCancelled;
     }
 }

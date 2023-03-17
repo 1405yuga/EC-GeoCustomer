@@ -38,4 +38,6 @@
     <string name="you_can_also_purchase">You can also purchase!!</string>
     <string name="you_may_also_need">You may also need !</string>
     <string name="confirm">Confirm</string>
+    <string name="shop_id">Shop ID :</string>
+    <string name="status">STATUS</string>
 </resources>

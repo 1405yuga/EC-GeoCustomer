@@ -1,16 +1,17 @@
 package com.example.ec_geocustomer.data;
 
 public class ShopProfile {
-    String shopname, ownername, address, city;
+    String shopname, ownername, address, city,upiId;
     Long mobile;
 
     Double latitude,longitude;
 
-    public ShopProfile(String shopname, String ownername, String address, String city, Long mobile, Double latitude, Double longitude) {
+    public ShopProfile(String shopname, String ownername, String address, String city, String upiId, Long mobile, Double latitude, Double longitude) {
         this.shopname = shopname;
         this.ownername = ownername;
         this.address = address;
         this.city = city;
+        this.upiId = upiId;
         this.mobile = mobile;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -45,5 +46,9 @@ public class ShopProfile {
 
     public Double getLongitude() {
         return longitude;
+    }
+
+    public String getUpiId() {
+        return upiId;
     }
 }
