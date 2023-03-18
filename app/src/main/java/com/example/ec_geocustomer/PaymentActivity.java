@@ -107,7 +107,7 @@ public class PaymentActivity extends AppCompatActivity {
                 SimpleDateFormat df = new SimpleDateFormat("ddMMyyyyHHmmss", Locale.getDefault());
                 String transcId = df.format(c);
                 try {
-                    // change feilds to proper variables
+                    // change feilds to proper variables TODO: 17-03-2023 test upi system
                     EasyUpiPayment.Builder builder = new EasyUpiPayment.Builder(PaymentActivity.this)
                             .with(PaymentApp.ALL)
                             .setPayeeVpa(shop.getUpiId())

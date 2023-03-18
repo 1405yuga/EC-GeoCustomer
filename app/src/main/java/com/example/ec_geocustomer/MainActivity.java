@@ -18,11 +18,16 @@ import com.google.firebase.auth.FirebaseUser;
 public class MainActivity extends AppCompatActivity {
 
     ActivityMainBinding binding;
+    FirebaseAuth fAuth=FirebaseAuth.getInstance();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding=ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        if(fAuth.getCurrentUser()!=null){
+            startActivity(new Intent(MainActivity.this,Menus.class));
+            finish();
+        }
         binding.loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -34,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else{
                     //signin
-                    FirebaseAuth fAuth=FirebaseAuth.getInstance();
                     fAuth.signInWithEmailAndPassword(binding.email.getEditText().getText().toString(),binding.passtxt.getEditText().getText().toString())
                             .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                 @Override

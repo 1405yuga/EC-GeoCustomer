@@ -86,7 +86,14 @@ public class Settings extends Fragment {
 
         binding.email.setText(firebaseAuth.getCurrentUser().getEmail());
 
-
+        binding.logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                firebaseAuth.signOut();
+                startActivity(new Intent(getActivity(), MainActivity.class));
+                getActivity().onBackPressed();
+            }
+        });
 
 
         return binding.getRoot();
