@@ -135,90 +135,146 @@ public class Settings extends Fragment {
                     public void onClick(View view) {
                         //mobile changed
                         if(!dialogBinding.mobile.getEditText().getText().equals(profile.getMobile().toString())){
+                            dialogBinding.otp.setVisibility(View.VISIBLE);
+                            dialogBinding.verifyBtn.setVisibility(View.VISIBLE);
+                            FirebaseAuth mAuth = FirebaseAuth.getInstance();
+                            PhoneAuthOptions options =
+                                    PhoneAuthOptions.newBuilder(mAuth)
+                                            .setPhoneNumber("+91" + dialogBinding.mobile.getEditText().getText().toString())       // Phone number to verify
+                                            .setTimeout(60L, TimeUnit.SECONDS) // Timeout and unit
+                                            .setActivity(getActivity())                 // Activity (for callback binding)
+                                            .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+                                                @Override
+                                                public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
+                                                    dialogBinding.progressBar.setVisibility(View.GONE);
+                                                    dialogBinding.submitBtn.setVisibility(View.VISIBLE);
+                                                }
 
+                                                @Override
+                                                public void onVerificationFailed(@NonNull FirebaseException e) {
+                                                    dialogBinding.progressBar.setVisibility(View.INVISIBLE);
+                                                    dialogBinding.submitBtn.setVisibility(View.VISIBLE);
+                                                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                                                    System.out.println("Error " + e.getMessage());
+                                                }
 
-                            //check if entered otp is correct;
+                                                @Override
+                                                public void onCodeSent(@NonNull String s, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+                                                    dialogBinding.progressBar.setVisibility(View.GONE);
+                                                    dialogBinding.submitBtn.setVisibility(View.VISIBLE);
+                                                    getbackendotp=s;
+                                                }
+                                            })          // OnVerificationStateChangedCallbacks
+                                            .build();
+                            PhoneAuthProvider.verifyPhoneNumber(options);
+
+                            //check otp
+                            dialogBinding.verifyBtn.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    //check if entered otp is correct;
+                                    PhoneAuthCredential credential= PhoneAuthProvider.getCredential(getbackendotp,dialogBinding.otp.getEditText().getText().toString());
+                                    FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<AuthResult> task) {
+                                            if(task.isSuccessful()){
+                                                Toast.makeText(getContext(), "Otp verified successfully !", Toast.LENGTH_SHORT).show();
+                                                dialogBinding.progressBar.setVisibility(View.INVISIBLE);
+                                                dialogBinding.verifyBtn.setVisibility(View.GONE);
+                                                dialogBinding.otp.setVisibility(View.GONE);
+
+                                            }
+                                            else{
+                                                Toast.makeText(getContext(), "Failed sign in!", Toast.LENGTH_SHORT).show();
+                                                dialogBinding.progressBar.setVisibility(View.INVISIBLE);
+                                            }
+
+                                        }
+                                    });
+                                }
+                            });
+
 
                         }
 
                         //email changed
-                        if (!dialogBinding.email.getEditText().getText().equals(email)) {
-                            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-                            firebaseFirestore = FirebaseFirestore.getInstance();
-                            firebaseFirestore.collection(constants.getCustomer()).document(user.getEmail()).get()
-                                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                        @Override
-                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                            document = documentSnapshot.toObject(Profile.class);
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                    });
-                            AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), "123456");
-                            user.reauthenticate(credential).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void unused) {
-                                            Log.d(TAG, "RE-authenticated");
-                                            FirebaseUser user1 = FirebaseAuth.getInstance().getCurrentUser();
-                                            user1.updateEmail(dialogBinding.email.getEditText().getText().toString())
-                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                        @Override
-                                                        public void onSuccess(Void unused) {
-                                                            user1.sendEmailVerification().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                        @Override
-                                                                        public void onSuccess(Void unused) {
-                                                                            Log.d(TAG, "Updated email");
-                                                                            firebaseFirestore.collection(constants.getCustomer()).document(user1.getEmail())
-                                                                                    .set(document)
-                                                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                                        @Override
-                                                                                        public void onSuccess(Void unused) {
-                                                                                            Log.d(TAG, "Document updated");
-                                                                                            firebaseFirestore.collection(constants.getCustomer()).document(email).delete();
-                                                                                            dialog.dismiss();
-                                                                                            Toast.makeText(getContext(), "Email verification link sent to " + user1.getEmail(), Toast.LENGTH_LONG).show();
-                                                                                            firebaseAuth.signOut();
-                                                                                            startActivity(new Intent(getActivity(), MainActivity.class));
-                                                                                            getActivity().onBackPressed();
-                                                                                        }
-                                                                                    })
-                                                                                    .addOnFailureListener(new OnFailureListener() {
-                                                                                        @Override
-                                                                                        public void onFailure(@NonNull Exception e) {
-                                                                                            e.printStackTrace();
-                                                                                        }
-                                                                                    });
-                                                                        }
-                                                                    })
-                                                                    .addOnFailureListener(new OnFailureListener() {
-                                                                        @Override
-                                                                        public void onFailure(@NonNull Exception e) {
-                                                                            e.printStackTrace();
-                                                                        }
-                                                                    });
-
-                                                        }
-                                                    })
-                                                    .addOnFailureListener(new OnFailureListener() {
-                                                        @Override
-                                                        public void onFailure(@NonNull Exception e) {
-
-                                                        }
-                                                    });
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                    });
-                        }
+//                        if (!dialogBinding.email.getEditText().getText().equals(email)) {
+//                            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+//
+//                            firebaseFirestore = FirebaseFirestore.getInstance();
+//                            firebaseFirestore.collection(constants.getCustomer()).document(user.getEmail()).get()
+//                                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+//                                        @Override
+//                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+//                                            document = documentSnapshot.toObject(Profile.class);
+//                                        }
+//                                    })
+//                                    .addOnFailureListener(new OnFailureListener() {
+//                                        @Override
+//                                        public void onFailure(@NonNull Exception e) {
+//                                            e.printStackTrace();
+//                                        }
+//                                    });
+//                            AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), "123456");
+//                            user.reauthenticate(credential).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                        @Override
+//                                        public void onSuccess(Void unused) {
+//                                            Log.d(TAG, "RE-authenticated");
+//                                            FirebaseUser user1 = FirebaseAuth.getInstance().getCurrentUser();
+//                                            user1.updateEmail(dialogBinding.email.getEditText().getText().toString())
+//                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                                        @Override
+//                                                        public void onSuccess(Void unused) {
+//                                                            user1.sendEmailVerification().addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                                                        @Override
+//                                                                        public void onSuccess(Void unused) {
+//                                                                            Log.d(TAG, "Updated email");
+//                                                                            firebaseFirestore.collection(constants.getCustomer()).document(user1.getEmail())
+//                                                                                    .set(document)
+//                                                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                                                                        @Override
+//                                                                                        public void onSuccess(Void unused) {
+//                                                                                            Log.d(TAG, "Document updated");
+//                                                                                            firebaseFirestore.collection(constants.getCustomer()).document(email).delete();
+//                                                                                            dialog.dismiss();
+//                                                                                            Toast.makeText(getContext(), "Email verification link sent to " + user1.getEmail(), Toast.LENGTH_LONG).show();
+//                                                                                            firebaseAuth.signOut();
+//                                                                                            startActivity(new Intent(getActivity(), MainActivity.class));
+//                                                                                            getActivity().onBackPressed();
+//                                                                                        }
+//                                                                                    })
+//                                                                                    .addOnFailureListener(new OnFailureListener() {
+//                                                                                        @Override
+//                                                                                        public void onFailure(@NonNull Exception e) {
+//                                                                                            e.printStackTrace();
+//                                                                                        }
+//                                                                                    });
+//                                                                        }
+//                                                                    })
+//                                                                    .addOnFailureListener(new OnFailureListener() {
+//                                                                        @Override
+//                                                                        public void onFailure(@NonNull Exception e) {
+//                                                                            e.printStackTrace();
+//                                                                        }
+//                                                                    });
+//
+//                                                        }
+//                                                    })
+//                                                    .addOnFailureListener(new OnFailureListener() {
+//                                                        @Override
+//                                                        public void onFailure(@NonNull Exception e) {
+//
+//                                                        }
+//                                                    });
+//                                        }
+//                                    })
+//                                    .addOnFailureListener(new OnFailureListener() {
+//                                        @Override
+//                                        public void onFailure(@NonNull Exception e) {
+//                                            e.printStackTrace();
+//                                        }
+//                                    });
+//                        }
                     }
                 });
             }

@@ -111,6 +111,30 @@
                 android:layout_marginHorizontal="10sp"
                 android:text="@string/you_will_recieve_otp_on_this_number"
                 android:textColor="@color/purple_700"/>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/otp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="10sp"
+                android:hint="Otp"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+            <Button
+                android:id="@+id/verifyBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="10sp"
+                android:padding="14sp"
+                android:text="Verify otp"
+                android:layout_marginTop="12sp"
+                android:visibility="gone"/>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/email"
