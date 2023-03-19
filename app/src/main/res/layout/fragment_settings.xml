@@ -8,13 +8,14 @@
     android:layout_margin="10dp">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/materialCardView2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:backgroundTint="#F8F3CA"
+            android:backgroundTint="#FAF7E2"
             android:padding="6dp"
             app:cardCornerRadius="4dp"
             app:layout_constraintStart_toStartOf="parent"
@@ -41,6 +42,14 @@
                     app:layout_constraintTop_toTopOf="parent">
 
                 </TextView>
+                <ImageView
+                    android:id="@+id/editBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:src="@drawable/ic_baseline_edit_24"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/name"
@@ -110,26 +119,16 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <Button
-            android:id="@+id/editBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="14sp"
-            android:text="@string/edit_profile"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/materialCardView2" />
 
         <Button
             android:id="@+id/logout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
             android:padding="14sp"
             android:text="@string/logout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editBtn" />
+            app:layout_constraintTop_toBottomOf="@+id/materialCardView2" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

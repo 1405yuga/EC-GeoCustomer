@@ -104,7 +104,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="10sp"
-            android:text="@string/you_will_recieve_otp_on_this_number"
+            android:text="@string/you_will_receive_verification_link_on_this_email"
             android:textColor="@color/purple_700"/>
 
     </LinearLayout>

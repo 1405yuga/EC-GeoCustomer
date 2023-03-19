@@ -27,7 +27,7 @@
     <string name="re_enter_password">Re-enter password</string>
     <string name="logout">Logout</string>
     <string name="settings">Settings</string>
-    <string name="your_s_profile">Your\'s Profile</string>
+    <string name="your_s_profile">Profile</string>
     <string name="city_town">City/Town</string>
     <string name="_1234">1234</string>
     <string name="edit_profile">Edit profile</string>
@@ -40,4 +40,5 @@
     <string name="confirm">Confirm</string>
     <string name="shop_id">Shop ID :</string>
     <string name="status">STATUS</string>
+    <string name="you_will_receive_verification_link_on_this_email">You will receive verification link on this email</string>
 </resources>
