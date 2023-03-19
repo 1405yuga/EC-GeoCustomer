@@ -43,4 +43,20 @@ public class Profile implements Serializable {
     public Double getLongitude() {
         return longitude;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public void setMobile(Long mobile) {
+        this.mobile = mobile;
+    }
 }

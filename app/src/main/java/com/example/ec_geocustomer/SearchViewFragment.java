@@ -169,7 +169,12 @@ public class SearchViewFragment extends Fragment {
                 firebaseAuth = FirebaseAuth.getInstance();
                 firebaseFirestore = FirebaseFirestore.getInstance();
                 final String email = firebaseAuth.getCurrentUser().getEmail();
-                firebaseFirestore.collection(constants.getCustomer()).document(email)
+                if(email == null || email.trim().isEmpty()){
+                    firebaseAuth.signOut();
+                    startActivity(new Intent(getActivity(), MainActivity.class));
+                }
+                firebaseFirestore.collection(constants.getCustomer())
+                        .document(email)
                         .get()
                         .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                             @Override
