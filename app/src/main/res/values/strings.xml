@@ -41,4 +41,6 @@
     <string name="shop_id">Shop ID :</string>
     <string name="status">STATUS</string>
     <string name="you_will_receive_verification_link_on_this_email">You will receive verification link on this email</string>
+    <string name="current_password">Current password</string>
+    <string name="new_email">New email</string>
 </resources>

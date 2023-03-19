@@ -1,22 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_gravity="center">
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp">
-
         <TextView
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:fontFamily="@font/calistoga"
-            android:text="Edit Profile"
+            android:text="Edit Email"
             android:textColor="@color/purple_700"
             android:textSize="36sp"
             android:textStyle="bold"
@@ -47,99 +45,43 @@
             app:layout_constraintTop_toBottomOf="@+id/textView"
             app:layout_constraintVertical_bias="0.231">
 
+
+
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/name"
+                android:id="@+id/email"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="10sp"
-                android:hint="@string/name">
+                android:hint="@string/new_email"
+                android:layout_marginTop="6dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
             </com.google.android.material.textfield.TextInputLayout>
-
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/addLine1"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="10sp"
-                android:hint="@string/address_line_1">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/city"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="10sp"
-                android:hint="@string/city_town">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/mobile"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="10sp"
-                android:hint="@string/mobile">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="phone" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="10sp"
-                android:text="@string/you_will_recieve_otp_on_this_number"
-                android:textColor="@color/purple_700" />
-
+                android:text="@string/you_will_receive_verification_link_on_this_email"
+                android:textColor="@color/purple_700"/>
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/otp"
+                android:id="@+id/pass"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="10sp"
-                android:hint="Otp"
-                android:visibility="gone">
+                android:hint="@string/current_password"
+                android:layout_marginTop="6dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:maxLength="6" />
+                    android:inputType="textPassword"/>
 
             </com.google.android.material.textfield.TextInputLayout>
-
-            <Button
-                android:id="@+id/verifyBtn"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="10sp"
-                android:layout_marginTop="12sp"
-                android:padding="14sp"
-                android:text="Verify otp"
-                android:visibility="gone" />
-
 
         </LinearLayout>
 
@@ -149,23 +91,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="10sp"
-            android:layout_marginTop="12sp"
             android:padding="14sp"
             android:text="@string/submit"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.473"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/linearLayout3"
-            app:layout_constraintVertical_bias="0.337" />
-
+            app:layout_constraintVertical_bias="0.337"
+            android:layout_marginTop="12sp"/>
         <ProgressBar
-            android:id="@+id/progressBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12sp"
+            android:id="@+id/progressBar"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout3"
             android:visibility="invisible"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayout3"></ProgressBar>
+            android:layout_marginTop="12sp">
+        </ProgressBar>
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 
 </com.google.android.material.card.MaterialCardView>

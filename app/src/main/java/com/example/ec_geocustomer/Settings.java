@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.ec_geocustomer.data.FiresStoreTableConstants;
 import com.example.ec_geocustomer.data.Profile;
+import com.example.ec_geocustomer.databinding.DialogEditEmailBinding;
 import com.example.ec_geocustomer.databinding.DialogEditProfileBinding;
 import com.example.ec_geocustomer.databinding.FragmentSettingsBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -129,7 +130,6 @@ public class Settings extends Fragment {
                 dialogBinding.addLine1.getEditText().setText(profile.getAddress());
                 dialogBinding.city.getEditText().setText(profile.getCity());
                 dialogBinding.mobile.getEditText().setText(profile.getMobile().toString());
-                dialogBinding.email.getEditText().setText(email);
 
                 dialogBinding.submitBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -209,8 +209,8 @@ public class Settings extends Fragment {
                                                 dialogBinding.otp.setVisibility(View.GONE);
                                                 firebaseFirestore.collection(constants.getCustomer()).document(email).update("mobile",Long.parseLong(dialogBinding.mobile.getEditText().getText().toString().trim()));
                                                 Toast.makeText(getContext(), "Updated profile sucessfully", Toast.LENGTH_SHORT).show();
-                                                dialogBinding.mobile.getEditText().setText(profile.getMobile().toString());
                                                 profile.setMobile(Long.parseLong(dialogBinding.mobile.getEditText().getText().toString()));
+                                                dialogBinding.mobile.getEditText().setText(profile.getMobile().toString());
 
                                             }
                                             else{
@@ -225,6 +225,32 @@ public class Settings extends Fragment {
 
 
                         }
+
+                    }
+                });
+            }
+        });
+
+        binding.editBtn1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Dialog dialog=new Dialog(getContext());
+                DialogEditEmailBinding dialogBinding=DialogEditEmailBinding.inflate(getLayoutInflater());
+                dialog.setContentView(dialogBinding.getRoot());
+                dialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                dialog.show();
+                dialog.setCancelable(false);
+                dialogBinding.closeBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dialog.dismiss();
+                    }
+                });
+                final String email=firebaseAuth.getCurrentUser().getEmail();
+                dialogBinding.email.getEditText().setText(email);
+                dialogBinding.submitBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
                         //email changed
                         if (!dialogBinding.email.getEditText().getText().toString().trim().equals(email)) {
                             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
