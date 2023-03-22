@@ -65,8 +65,8 @@ public class PaymentActivity extends AppCompatActivity {
         binding.discount.setText(shop.getDiscount().toString());
         binding.qtyAvail.setText(shop.getQuantity().toString());
         binding.qtyPurchased.setText(getIntent().getStringExtra("qty_purchased"));
+        Log.d(TAG,"SubCategory : "+itemBarcode.getSubCategory());
         recommend(itemBarcode.getSubCategory());
-        Log.d(TAG, "qty purchased received " + getIntent().getStringExtra("qty_purchased"));
         Glide
                 .with(this)
                 .load(itemBarcode.getUrl())
@@ -189,9 +189,6 @@ public class PaymentActivity extends AppCompatActivity {
     private void recommend(String subCategory) {
         if (subCategory != null) {
             //  fetch associative rule & display dialog
-            String finalSubCategory = "{'" + subCategory + "'}";
-
-
             ArrayList<RecommendationData> arrayList = new ArrayList<>();
 
             binding.recycler2.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -204,32 +201,34 @@ public class PaymentActivity extends AppCompatActivity {
                     .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            if(documentSnapshot.get(subCategory)!=null){
+                                predictedSubCategory[0] = documentSnapshot.get(subCategory).toString();
+                                Log.d(TAG,"predicted subcategory;"+ predictedSubCategory[0]);
+                                firebaseFirestore.collection(constants.getBarcode()).whereEqualTo(constants.getBarcodeSubCatgeory(), predictedSubCategory[0])
+                                        .get()
+                                        .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                                List<DocumentSnapshot> recommendationProducts = queryDocumentSnapshots.getDocuments();
+                                                Log.d(TAG, "Entered success listener" + recommendationProducts.size());
+                                                for (DocumentSnapshot documentSnapshot1 : recommendationProducts) {
+                                                    Log.d(TAG, "recommend " + documentSnapshot1.get(constants.getBarcodeName()));
+                                                    arrayList.add(new RecommendationData(documentSnapshot1.get(constants.getBarcodeUrl()).toString(), documentSnapshot1.get(constants.getBarcodeName()).toString()));
+                                                }
 
-                            predictedSubCategory[0] = documentSnapshot.get(finalSubCategory).toString();
-                            predictedSubCategory[0] = predictedSubCategory[0].substring(1, predictedSubCategory[0].length() - 1);
-                            Log.d(TAG, predictedSubCategory[0]);
-                            firebaseFirestore.collection(constants.getBarcode()).whereEqualTo(constants.getBarcodeSubCatgeory(), predictedSubCategory[0])
-                                    .get()
-                                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                                            List<DocumentSnapshot> recommendationProducts = queryDocumentSnapshots.getDocuments();
-                                            Log.d(TAG, "Entered success listener" + recommendationProducts.size());
-                                            for (DocumentSnapshot documentSnapshot1 : recommendationProducts) {
-                                                Log.d(TAG, "recommend " + documentSnapshot1.get(constants.getBarcodeName()));
-                                                arrayList.add(new RecommendationData(documentSnapshot1.get(constants.getBarcodeUrl()).toString(), documentSnapshot1.get(constants.getBarcodeName()).toString()));
+                                                myAdapter.notifyDataSetChanged();
+
                                             }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                        });
+                            }
 
-                                            myAdapter.notifyDataSetChanged();
 
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                    });
                         }
                     })
                     .addOnFailureListener(e -> {
