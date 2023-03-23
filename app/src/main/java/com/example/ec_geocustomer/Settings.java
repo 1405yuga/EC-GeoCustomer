@@ -17,7 +17,6 @@ import androidx.fragment.app.Fragment;
 
 import com.example.ec_geocustomer.data.FiresStoreTableConstants;
 import com.example.ec_geocustomer.data.Profile;
-import com.example.ec_geocustomer.databinding.DialogEditEmailBinding;
 import com.example.ec_geocustomer.databinding.DialogEditProfileBinding;
 import com.example.ec_geocustomer.databinding.FragmentSettingsBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -25,11 +24,8 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
-import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
@@ -38,11 +34,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.concurrent.TimeUnit;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link Settings#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class Settings extends Fragment {
 
 
@@ -50,7 +42,7 @@ public class Settings extends Fragment {
     FirebaseAuth firebaseAuth;
     FirebaseFirestore firebaseFirestore;
     FiresStoreTableConstants constants;
-    Profile profile,document;
+    Profile profile, document;
     String getbackendotp;
     String new_email;
 
@@ -137,29 +129,29 @@ public class Settings extends Fragment {
                         firebaseFirestore = FirebaseFirestore.getInstance();
 
                         //name
-                        if(!dialogBinding.name.getEditText().getText().toString().trim().equals(profile.getName())){
-                            firebaseFirestore.collection(constants.getCustomer()).document(email).update("name",dialogBinding.name.getEditText().getText().toString());
+                        if (!dialogBinding.name.getEditText().getText().toString().trim().equals(profile.getName())) {
+                            firebaseFirestore.collection(constants.getCustomer()).document(email).update("name", dialogBinding.name.getEditText().getText().toString());
                             profile.setName(dialogBinding.name.getEditText().getText().toString());
                             dialogBinding.name.getEditText().setText(profile.getName());
                             Toast.makeText(getContext(), "Updated profile sucessfully", Toast.LENGTH_SHORT).show();
                         }
                         //address
-                        if(!dialogBinding.addLine1.getEditText().getText().toString().trim().equals(profile.getAddress())){
-                            firebaseFirestore.collection(constants.getCustomer()).document(email).update("address",dialogBinding.addLine1.getEditText().getText().toString());
+                        if (!dialogBinding.addLine1.getEditText().getText().toString().trim().equals(profile.getAddress())) {
+                            firebaseFirestore.collection(constants.getCustomer()).document(email).update("address", dialogBinding.addLine1.getEditText().getText().toString());
                             profile.setAddress(dialogBinding.addLine1.getEditText().getText().toString());
                             dialogBinding.addLine1.getEditText().setText(profile.getAddress());
                             Toast.makeText(getContext(), "Updated profile sucessfully", Toast.LENGTH_SHORT).show();
                         }
 
                         //city
-                        if(!dialogBinding.city.getEditText().getText().toString().trim().equals(profile.getCity())){
-                            firebaseFirestore.collection(constants.getCustomer()).document(email).update("city",dialogBinding.city.getEditText().getText().toString());
+                        if (!dialogBinding.city.getEditText().getText().toString().trim().equals(profile.getCity())) {
+                            firebaseFirestore.collection(constants.getCustomer()).document(email).update("city", dialogBinding.city.getEditText().getText().toString());
                             profile.setCity(dialogBinding.city.getEditText().getText().toString());
                             dialogBinding.city.getEditText().setText(profile.getCity());
                             Toast.makeText(getContext(), "Updated profile sucessfully", Toast.LENGTH_SHORT).show();
                         }
                         //mobile changed
-                        if(!dialogBinding.mobile.getEditText().getText().toString().trim().equals(profile.getMobile().toString())){
+                        if (!dialogBinding.mobile.getEditText().getText().toString().trim().equals(profile.getMobile().toString())) {
                             dialogBinding.otp.setVisibility(View.VISIBLE);
                             dialogBinding.verifyBtn.setVisibility(View.VISIBLE);
                             FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -187,7 +179,7 @@ public class Settings extends Fragment {
                                                 public void onCodeSent(@NonNull String s, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
                                                     dialogBinding.progressBar.setVisibility(View.GONE);
                                                     dialogBinding.submitBtn.setVisibility(View.VISIBLE);
-                                                    getbackendotp=s;
+                                                    getbackendotp = s;
                                                 }
                                             })          // OnVerificationStateChangedCallbacks
                                             .build();
@@ -198,22 +190,21 @@ public class Settings extends Fragment {
                                 @Override
                                 public void onClick(View view) {
                                     //check if entered otp is correct;
-                                    PhoneAuthCredential credential= PhoneAuthProvider.getCredential(getbackendotp,dialogBinding.otp.getEditText().getText().toString());
+                                    PhoneAuthCredential credential = PhoneAuthProvider.getCredential(getbackendotp, dialogBinding.otp.getEditText().getText().toString());
                                     FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                         @Override
                                         public void onComplete(@NonNull Task<AuthResult> task) {
-                                            if(task.isSuccessful()){
+                                            if (task.isSuccessful()) {
                                                 Toast.makeText(getContext(), "Otp verified successfully !", Toast.LENGTH_SHORT).show();
                                                 dialogBinding.progressBar.setVisibility(View.INVISIBLE);
                                                 dialogBinding.verifyBtn.setVisibility(View.GONE);
                                                 dialogBinding.otp.setVisibility(View.GONE);
-                                                firebaseFirestore.collection(constants.getCustomer()).document(email).update("mobile",Long.parseLong(dialogBinding.mobile.getEditText().getText().toString().trim()));
+                                                firebaseFirestore.collection(constants.getCustomer()).document(email).update("mobile", Long.parseLong(dialogBinding.mobile.getEditText().getText().toString().trim()));
                                                 Toast.makeText(getContext(), "Updated profile sucessfully", Toast.LENGTH_SHORT).show();
                                                 profile.setMobile(Long.parseLong(dialogBinding.mobile.getEditText().getText().toString()));
                                                 dialogBinding.mobile.getEditText().setText(profile.getMobile().toString());
 
-                                            }
-                                            else{
+                                            } else {
                                                 dialogBinding.otp.setError("Enter correct otp");
                                                 dialogBinding.progressBar.setVisibility(View.INVISIBLE);
                                             }
@@ -226,108 +217,6 @@ public class Settings extends Fragment {
 
                         }
 
-                    }
-                });
-            }
-        });
-
-        binding.editBtn1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Dialog dialog=new Dialog(getContext());
-                DialogEditEmailBinding dialogBinding=DialogEditEmailBinding.inflate(getLayoutInflater());
-                dialog.setContentView(dialogBinding.getRoot());
-                dialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                dialog.show();
-                dialog.setCancelable(false);
-                dialogBinding.closeBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        dialog.dismiss();
-                    }
-                });
-                final String email=firebaseAuth.getCurrentUser().getEmail();
-                dialogBinding.email.getEditText().setText(email);
-                dialogBinding.submitBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        //email changed
-                        if (!dialogBinding.email.getEditText().getText().toString().trim().equals(email)) {
-                            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-                            firebaseFirestore.collection(constants.getCustomer()).document(user.getEmail()).get()
-                                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                        @Override
-                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                            document = documentSnapshot.toObject(Profile.class);
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                    });
-                            AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), "123456");
-                            new_email=dialogBinding.email.getEditText().getText().toString().trim();
-                            user.reauthenticate(credential).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void unused) {
-                                            Log.d(TAG, "RE-authenticated");
-                                            FirebaseUser user1 = FirebaseAuth.getInstance().getCurrentUser();
-                                            user1.updateEmail(new_email)
-                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                        @Override
-                                                        public void onSuccess(Void unused) {
-                                                            user1.sendEmailVerification().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                        @Override
-                                                                        public void onSuccess(Void unused) {
-                                                                            Log.d(TAG, "Updated email");
-                                                                            firebaseFirestore.collection(constants.getCustomer()).document(user1.getEmail())
-                                                                                    .set(document)
-                                                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                                        @Override
-                                                                                        public void onSuccess(Void unused) {
-                                                                                            Log.d(TAG, "Document updated");
-                                                                                            firebaseFirestore.collection(constants.getCustomer()).document(email).delete();
-                                                                                            Toast.makeText(getContext(), "Email verification link sent to " + user1.getEmail(), Toast.LENGTH_LONG).show();
-                                                                                            firebaseAuth.signOut();
-                                                                                            startActivity(new Intent(getActivity(), MainActivity.class));
-                                                                                            getActivity().onBackPressed();
-                                                                                        }
-                                                                                    })
-                                                                                    .addOnFailureListener(new OnFailureListener() {
-                                                                                        @Override
-                                                                                        public void onFailure(@NonNull Exception e) {
-                                                                                            e.printStackTrace();
-                                                                                        }
-                                                                                    });
-                                                                        }
-                                                                    })
-                                                                    .addOnFailureListener(new OnFailureListener() {
-                                                                        @Override
-                                                                        public void onFailure(@NonNull Exception e) {
-                                                                            e.printStackTrace();
-                                                                        }
-                                                                    });
-
-                                                        }
-                                                    })
-                                                    .addOnFailureListener(new OnFailureListener() {
-                                                        @Override
-                                                        public void onFailure(@NonNull Exception e) {
-
-                                                        }
-                                                    });
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                    });
-                        }
                     }
                 });
             }

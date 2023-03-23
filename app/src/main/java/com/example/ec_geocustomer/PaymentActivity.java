@@ -65,7 +65,7 @@ public class PaymentActivity extends AppCompatActivity {
         binding.discount.setText(shop.getDiscount().toString());
         binding.qtyAvail.setText(shop.getQuantity().toString());
         binding.qtyPurchased.setText(getIntent().getStringExtra("qty_purchased"));
-        Log.d(TAG,"SubCategory : "+itemBarcode.getSubCategory());
+        Log.d(TAG, "SubCategory : " + itemBarcode.getSubCategory());
         recommend(itemBarcode.getSubCategory());
         Glide
                 .with(this)
@@ -74,6 +74,7 @@ public class PaymentActivity extends AppCompatActivity {
                 .into(binding.productImage);
         binding.productName.setText(itemBarcode.getName());
         binding.oldPrice.setText(itemBarcode.getMrp().toString());
+        binding.size.setText(itemBarcode.getSize());
         binding.price.setText(newPrice.toString());
         binding.newPrice.setText(newPrice.toString());
         binding.total.setText(total.toString());
@@ -85,16 +86,17 @@ public class PaymentActivity extends AppCompatActivity {
         String transcId = df.format(c);
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
-        OrderDetails orderDetails=new OrderDetails(transcId,dtf.format(now),firebaseAuth.getCurrentUser().getEmail(),shop.getEmail(),itemBarcode.getBarcode(),constants.getOrderNotDelivered(),
-                total,Long.parseLong(getIntent().getStringExtra("qty_purchased")));
+        OrderDetails orderDetails = new OrderDetails(transcId, dtf.format(now), firebaseAuth.getCurrentUser().getEmail(), shop.getEmail(), itemBarcode.getBarcode(), constants.getOrderNotDelivered(),
+                total, Long.parseLong(getIntent().getStringExtra("qty_purchased")));
         firebaseFirestore.collection(constants.getOwner()).document(shop.getEmail()).collection(constants.getOwnerOrders())
                 .document(transcId).set(orderDetails)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
                         Log.d(TAG, "transaction completed with transactionID: " + transcId);
-                        // TODO: 17-03-2023 remove purchased item from owner's availability
-
+                        //  remove purchased item from owner's availability
+                        firebaseFirestore.collection(constants.getOwner()).document(shop.getEmail()).collection(constants.getOwnerAvailability())
+                                .document(orderDetails.getBarcode()).update("quantity", shop.getQuantity() - Long.parseLong(getIntent().getStringExtra("qty_purchased")));
                         Toast.makeText(PaymentActivity.this, "Order placed successfully !", Toast.LENGTH_LONG).show();
                     }
                 })
@@ -125,8 +127,8 @@ public class PaymentActivity extends AppCompatActivity {
                         public void onTransactionCompleted(@NonNull TransactionDetails transactionDetails) {
                             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
                             LocalDateTime now = LocalDateTime.now();
-                            OrderDetails orderDetails=new OrderDetails(transcId,dtf.format(now),firebaseAuth.getCurrentUser().getEmail(),shop.getEmail(),itemBarcode.getBarcode(),constants.getOrderNotDelivered(),
-                                    total,Long.parseLong(getIntent().getStringExtra("qty_purchased")));
+                            OrderDetails orderDetails = new OrderDetails(transcId, dtf.format(now), firebaseAuth.getCurrentUser().getEmail(), shop.getEmail(), itemBarcode.getBarcode(), constants.getOrderNotDelivered(),
+                                    total, Long.parseLong(getIntent().getStringExtra("qty_purchased")));
                             firebaseFirestore.collection(constants.getOwner()).document(shop.getEmail()).collection(constants.getOwnerOrders())
                                     .document(transcId).set(orderDetails)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -134,7 +136,8 @@ public class PaymentActivity extends AppCompatActivity {
                                         public void onSuccess(Void unused) {
                                             Log.d(TAG, "transaction completed with transactionID: " + transcId);
                                             // TODO: 17-03-2023 remove purchased item from owner's availability 
-
+                                            firebaseFirestore.collection(constants.getOwner()).document(shop.getEmail()).collection(constants.getOwnerAvailability())
+                                                    .document(orderDetails.getBarcode()).update("quantity", shop.getQuantity() - Long.parseLong(getIntent().getStringExtra("qty_purchased")));
                                             Toast.makeText(PaymentActivity.this, "Order placed successfully !", Toast.LENGTH_LONG).show();
                                         }
                                     })
@@ -151,8 +154,8 @@ public class PaymentActivity extends AppCompatActivity {
                             // TEST only
                             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
                             LocalDateTime now = LocalDateTime.now();
-                            OrderDetails orderDetails=new OrderDetails(transcId,dtf.format(now),firebaseAuth.getCurrentUser().getEmail(),shop.getEmail(),itemBarcode.getBarcode(),constants.getOrderNotDelivered(),
-                                    total,Long.parseLong(getIntent().getStringExtra("qty_purchased")));
+                            OrderDetails orderDetails = new OrderDetails(transcId, dtf.format(now), firebaseAuth.getCurrentUser().getEmail(), shop.getEmail(), itemBarcode.getBarcode(), constants.getOrderNotDelivered(),
+                                    total, Long.parseLong(getIntent().getStringExtra("qty_purchased")));
                             firebaseFirestore.collection(constants.getOwner()).document(shop.getEmail()).collection(constants.getOwnerOrders())
                                     .document(transcId).set(orderDetails)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -189,6 +192,7 @@ public class PaymentActivity extends AppCompatActivity {
     private void recommend(String subCategory) {
         if (subCategory != null) {
             //  fetch associative rule & display dialog
+            binding.materialCardView2.setVisibility(View.VISIBLE);
             ArrayList<RecommendationData> arrayList = new ArrayList<>();
 
             binding.recycler2.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -201,9 +205,9 @@ public class PaymentActivity extends AppCompatActivity {
                     .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            if(documentSnapshot.get(subCategory)!=null){
+                            if (documentSnapshot.get(subCategory) != null) {
                                 predictedSubCategory[0] = documentSnapshot.get(subCategory).toString();
-                                Log.d(TAG,"predicted subcategory;"+ predictedSubCategory[0]);
+                                Log.d(TAG, "predicted subcategory;" + predictedSubCategory[0]);
                                 firebaseFirestore.collection(constants.getBarcode()).whereEqualTo(constants.getBarcodeSubCatgeory(), predictedSubCategory[0])
                                         .get()
                                         .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {

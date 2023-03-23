@@ -92,7 +92,7 @@ public class SearchViewFragment extends Fragment {
                     public boolean onMarkerClick(@NonNull Marker marker) {
                         Shop shop = (Shop) marker.getTag();
                         Log.d(TAG,"on CLICK "+" shop obj"+shop.getShopname());
-//                      create dialog
+//                      create dialog for shop
                         Dialog dialog=new Dialog(getContext());
                         DisplayProductDialogBinding dialogBinding=DisplayProductDialogBinding.inflate(getLayoutInflater());
                         dialog.setContentView(dialogBinding.getRoot());
@@ -112,6 +112,7 @@ public class SearchViewFragment extends Fragment {
                                                     documentSnapshot.getString(constants.getBarcodeSize()),documentSnapshot.getString(constants.getBarcodeUrl()),
                                                     documentSnapshot.getString(constants.getBarcodeBrand()), documentSnapshot.getDouble(constants.getBarcodePrice()));
                                             dialogBinding.productName.setText(itemBarcode.getName());
+                                            dialogBinding.size.setText(itemBarcode.getSize());
                                             dialogBinding.oldPrice.setText(itemBarcode.getMrp().toString());
                                             subCategory = itemBarcode.getSubCategory();
                                             Double d=itemBarcode.getMrp();

@@ -66,9 +66,8 @@
                 android:textSize="24sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/productName" />
-
             <LinearLayout
-                android:id="@+id/linearLayout2"
+                android:id="@+id/linearLayout8"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -80,18 +79,47 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/calistoga"
+                    android:text="Size :" />
+
+
+                <TextView
+                    android:id="@+id/size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:text="@string/_0" />
+
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/linearLayout2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout8">
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/calistoga"
                     android:text="MRP :" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/Rs" />
+                    android:text="@string/Rs"
+                    android:background="@drawable/strike_through"/>
 
                 <TextView
                     android:id="@+id/oldPrice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
+                    android:background="@drawable/strike_through"
                     android:text="@string/_0" />
 
                 <TextView
@@ -241,12 +269,15 @@
     </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/materialCardView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/materialCardView"
         tools:layout_editor_absoluteX="8dp"
-        android:layout_marginTop="20dp">
+        android:visibility="gone">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -265,8 +296,8 @@
                 android:id="@+id/recycler2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                tools:listitem="@layout/recommended_item"
-                tools:itemCount="10"/>
+                tools:itemCount="10"
+                tools:listitem="@layout/recommended_item" />
         </LinearLayout>
 
 

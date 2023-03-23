@@ -37,6 +37,29 @@
             android:fontFamily="@font/calistoga"
             android:text="Shop Name"
             android:textSize="24sp"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/calistoga"
+                android:text="Size :" />
+
+
+
+            <TextView
+                android:id="@+id/size"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/_0"
+                android:layout_marginEnd="4dp"/>
+
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -53,14 +76,16 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/Rs"/>
+                android:text="@string/Rs"
+                android:background="@drawable/strike_through"/>
 
             <TextView
                 android:id="@+id/oldPrice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/_0"
-                android:layout_marginEnd="4dp"/>
+                android:layout_marginEnd="4dp"
+                android:background="@drawable/strike_through"/>
 
             <TextView
                 android:layout_width="wrap_content"
