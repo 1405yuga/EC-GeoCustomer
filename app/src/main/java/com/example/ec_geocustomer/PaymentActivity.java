@@ -58,6 +58,7 @@ public class PaymentActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         firebaseAuth = FirebaseAuth.getInstance();
         Shop shop = (Shop) getIntent().getSerializableExtra("shop");
+        Log.d(TAG,"SHOP : "+shop.getShopname()+shop.getAddress()+shop.getUpiId()+shop.getEmail());
         ItemBarcode itemBarcode = (ItemBarcode) getIntent().getSerializableExtra("itembarcode");
         Double d = itemBarcode.getMrp();
         final Double newPrice = d * (100 - shop.getDiscount()) / 100;
@@ -81,26 +82,26 @@ public class PaymentActivity extends AppCompatActivity {
         binding.shopName1.setText(shop.getShopname());
 
         //TEST ONLY -DONE
-        Date c = Calendar.getInstance().getTime();
-        SimpleDateFormat df = new SimpleDateFormat("ddMMyyyyHHmmss", Locale.getDefault());
-        String transcId = df.format(c);
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-        LocalDateTime now = LocalDateTime.now();
-        OrderDetails orderDetails = new OrderDetails(transcId, dtf.format(now), firebaseAuth.getCurrentUser().getEmail(), shop.getEmail(), itemBarcode.getBarcode(), constants.getOrderNotDelivered(),
-                total, Long.parseLong(getIntent().getStringExtra("qty_purchased")));
-        firebaseFirestore.collection(constants.getOwner()).document(shop.getEmail()).collection(constants.getOwnerOrders())
-                .document(transcId).set(orderDetails)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        Log.d(TAG, "transaction completed with transactionID: " + transcId);
-                        //  remove purchased item from owner's availability
-                        firebaseFirestore.collection(constants.getOwner()).document(shop.getEmail()).collection(constants.getOwnerAvailability())
-                                .document(orderDetails.getBarcode()).update("quantity", shop.getQuantity() - Long.parseLong(getIntent().getStringExtra("qty_purchased")));
-                        Toast.makeText(PaymentActivity.this, "Order placed successfully !", Toast.LENGTH_LONG).show();
-                    }
-                })
-                .addOnFailureListener(e -> e.printStackTrace());
+//        Date c = Calendar.getInstance().getTime();
+//        SimpleDateFormat df = new SimpleDateFormat("ddMMyyyyHHmmss", Locale.getDefault());
+//        String transcId = df.format(c);
+//        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+//        LocalDateTime now = LocalDateTime.now();
+//        OrderDetails orderDetails = new OrderDetails(transcId, dtf.format(now), firebaseAuth.getCurrentUser().getEmail(), shop.getEmail(), itemBarcode.getBarcode(), constants.getOrderNotDelivered(),
+//                total, Long.parseLong(getIntent().getStringExtra("qty_purchased")));
+//        firebaseFirestore.collection(constants.getOwner()).document(shop.getEmail()).collection(constants.getOwnerOrders())
+//                .document(transcId).set(orderDetails)
+//                .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                    @Override
+//                    public void onSuccess(Void unused) {
+//                        Log.d(TAG, "transaction completed with transactionID: " + transcId);
+//                        //  remove purchased item from owner's availability
+//                        firebaseFirestore.collection(constants.getOwner()).document(shop.getEmail()).collection(constants.getOwnerAvailability())
+//                                .document(orderDetails.getBarcode()).update("quantity", shop.getQuantity() - Long.parseLong(getIntent().getStringExtra("qty_purchased")));
+//                        Toast.makeText(PaymentActivity.this, "Order placed successfully !", Toast.LENGTH_LONG).show();
+//                    }
+//                })
+//                .addOnFailureListener(e -> e.printStackTrace());
         binding.confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -110,6 +111,7 @@ public class PaymentActivity extends AppCompatActivity {
                 String transcId = df.format(c);
                 try {
                     // change feilds to proper variables TODO: 17-03-2023 test upi system
+                    Log.d(TAG,"Shop upi "+shop.getUpiId());
                     EasyUpiPayment.Builder builder = new EasyUpiPayment.Builder(PaymentActivity.this)
                             .with(PaymentApp.ALL)
                             .setPayeeVpa(shop.getUpiId())
@@ -150,25 +152,6 @@ public class PaymentActivity extends AppCompatActivity {
                         @Override
                         public void onTransactionCancelled() {
                             Toast.makeText(PaymentActivity.this, "Transaction Cancelled!", Toast.LENGTH_LONG).show();
-
-                            // TEST only
-                            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-                            LocalDateTime now = LocalDateTime.now();
-                            OrderDetails orderDetails = new OrderDetails(transcId, dtf.format(now), firebaseAuth.getCurrentUser().getEmail(), shop.getEmail(), itemBarcode.getBarcode(), constants.getOrderNotDelivered(),
-                                    total, Long.parseLong(getIntent().getStringExtra("qty_purchased")));
-                            firebaseFirestore.collection(constants.getOwner()).document(shop.getEmail()).collection(constants.getOwnerOrders())
-                                    .document(transcId).set(orderDetails)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void unused) {
-                                            Log.d(TAG, "transaction completed with transactionID in cancelled: " + transcId);
-
-                                            Toast.makeText(PaymentActivity.this, "Order placed successfully !", Toast.LENGTH_LONG).show();
-                                        }
-                                    })
-                                    .addOnFailureListener(e -> e.printStackTrace());
-
-                            Log.d(TAG, "transaction completed with transactionID: " + transcId);
                             Log.d(TAG, transcId + " transaction cancelled");
                         }
                     });

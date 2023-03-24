@@ -76,13 +76,17 @@ public class SearchViewFragment extends Fragment {
     GoogleMap map;
 
     ItemBarcode itemBarcode;
+    LatLng you;
 
     private final OnMapReadyCallback callback = new OnMapReadyCallback() {
         @Override
         public void onMapReady(@NonNull GoogleMap googleMap) {
             map = googleMap;
             Log.d(TAG, "onMapReady called");
+            map.clear();
             if (newPoints) {
+                map.addMarker(new MarkerOptions().position(you).title("You!!"));
+                map.moveCamera(CameraUpdateFactory.newLatLng(you));
                 for (LatLng latLng : shopsWithId.values()) {
                     map.addMarker(new MarkerOptions().position(latLng).title("new!!"));
                     map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
@@ -91,77 +95,80 @@ public class SearchViewFragment extends Fragment {
                     @Override
                     public boolean onMarkerClick(@NonNull Marker marker) {
                         Shop shop = (Shop) marker.getTag();
-                        Log.d(TAG,"on CLICK "+" shop obj"+shop.getShopname());
+                        if(shop!=null){
+                            Log.d(TAG,"on CLICK "+" shop obj"+shop.getShopname());
 //                      create dialog for shop
-                        Dialog dialog=new Dialog(getContext());
-                        DisplayProductDialogBinding dialogBinding=DisplayProductDialogBinding.inflate(getLayoutInflater());
-                        dialog.setContentView(dialogBinding.getRoot());
-                        dialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
-                        dialog.show();
+                            Dialog dialog=new Dialog(getContext());
+                            DisplayProductDialogBinding dialogBinding=DisplayProductDialogBinding.inflate(getLayoutInflater());
+                            dialog.setContentView(dialogBinding.getRoot());
+                            dialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
+                            dialog.show();
 
-                        firebaseFirestore = FirebaseFirestore.getInstance();
-                        FiresStoreTableConstants constants = new FiresStoreTableConstants();
-                        firebaseFirestore.collection(constants.getBarcode()).document(itemBarcodeSearched).get()
-                                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                        if (documentSnapshot.exists()) {
-                                            Log.d(TAG, "Exists " + documentSnapshot.getString(constants.getBarcodeName()));
-                                            itemBarcode =new ItemBarcode(documentSnapshot.getId(),documentSnapshot.getString(constants.getBarcodeName()),
-                                                    documentSnapshot.getString(constants.getBarcodeCategory()),documentSnapshot.getString(constants.getBarcodeSubCatgeory()),
-                                                    documentSnapshot.getString(constants.getBarcodeSize()),documentSnapshot.getString(constants.getBarcodeUrl()),
-                                                    documentSnapshot.getString(constants.getBarcodeBrand()), documentSnapshot.getDouble(constants.getBarcodePrice()));
-                                            dialogBinding.productName.setText(itemBarcode.getName());
-                                            dialogBinding.size.setText(itemBarcode.getSize());
-                                            dialogBinding.oldPrice.setText(itemBarcode.getMrp().toString());
-                                            subCategory = itemBarcode.getSubCategory();
-                                            Double d=itemBarcode.getMrp();
-                                            final Double newPrice=d*(100-shop.getDiscount())/100;
-                                            dialogBinding.price.setText(newPrice.toString());
-                                            //set image
-                                            Glide
-                                                    .with(getActivity())
-                                                    .load(itemBarcode.getUrl())
-                                                    .centerCrop()
-                                                    .into(dialogBinding.productImage);
+                            firebaseFirestore = FirebaseFirestore.getInstance();
+                            FiresStoreTableConstants constants = new FiresStoreTableConstants();
+                            firebaseFirestore.collection(constants.getBarcode()).document(itemBarcodeSearched).get()
+                                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                            if (documentSnapshot.exists()) {
+                                                Log.d(TAG, "Exists " + documentSnapshot.getString(constants.getBarcodeName()));
+                                                itemBarcode =new ItemBarcode(documentSnapshot.getId(),documentSnapshot.getString(constants.getBarcodeName()),
+                                                        documentSnapshot.getString(constants.getBarcodeCategory()),documentSnapshot.getString(constants.getBarcodeSubCatgeory()),
+                                                        documentSnapshot.getString(constants.getBarcodeSize()),documentSnapshot.getString(constants.getBarcodeUrl()),
+                                                        documentSnapshot.getString(constants.getBarcodeBrand()), documentSnapshot.getDouble(constants.getBarcodePrice()));
+                                                dialogBinding.productName.setText(itemBarcode.getName());
+                                                dialogBinding.size.setText(itemBarcode.getSize());
+                                                dialogBinding.oldPrice.setText(itemBarcode.getMrp().toString());
+                                                subCategory = itemBarcode.getSubCategory();
+                                                Double d=itemBarcode.getMrp();
+                                                final Double newPrice=d*(100-shop.getDiscount())/100;
+                                                dialogBinding.price.setText(newPrice.toString());
+                                                //set image
+                                                Glide
+                                                        .with(getActivity())
+                                                        .load(itemBarcode.getUrl())
+                                                        .centerCrop()
+                                                        .into(dialogBinding.productImage);
 
-                                        } else {
-                                            Log.d(TAG, "Doesnt Exists");
-                                            dialogBinding.productName.setText("Doesnt exists");
-                                            dialogBinding.price.setText("Doesnt exists");
+                                            } else {
+                                                Log.d(TAG, "Doesnt Exists");
+                                                dialogBinding.productName.setText("Doesnt exists");
+                                                dialogBinding.price.setText("Doesnt exists");
+                                            }
                                         }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.d(TAG, "Fails");
+                                        }
+                                    });
+                            dialogBinding.shopname.setText(shop.getShopname());
+                            dialogBinding.discount.setText(shop.getDiscount().toString());
+                            dialogBinding.qtyAvail.setText(shop.getQuantity().toString());
+                            dialogBinding.buyBtn.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    //  check qty n available
+                                    if(dialogBinding.qty.getEditText().getText().toString().isEmpty() || Integer.parseInt(dialogBinding.qty.getEditText().getText().toString())<=0 ){
+                                        dialogBinding.qty.setError("Enter proper quantity required");
+                                        return;
                                     }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.d(TAG, "Fails");
+                                    if(shop.getQuantity()>=Integer.parseInt(dialogBinding.qty.getEditText().getText().toString())){
+                                        dialog.dismiss();
+
+                                        //  go to payment activity req:shop,qty_purchased,item/barcode profile
+                                        Intent intent = new Intent(getActivity(),PaymentActivity.class);
+                                        intent.putExtra("shop",shop);
+                                        intent.putExtra("qty_purchased",dialogBinding.qty.getEditText().getText().toString());
+                                        intent.putExtra("itembarcode",itemBarcode);
+                                        startActivity(intent);
                                     }
-                                });
-                        dialogBinding.shopname.setText(shop.getShopname());
-                        dialogBinding.discount.setText(shop.getDiscount().toString());
-                        dialogBinding.qtyAvail.setText(shop.getQuantity().toString());
-                        dialogBinding.buyBtn.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                //  check qty n available
-                                if(dialogBinding.qty.getEditText().getText().toString().isEmpty() || Integer.parseInt(dialogBinding.qty.getEditText().getText().toString())<=0 ){
-                                    dialogBinding.qty.setError("Enter proper quantity required");
-                                    return;
-                                }
-                                if(shop.getQuantity()>=Integer.parseInt(dialogBinding.qty.getEditText().getText().toString())){
-                                    dialog.dismiss();
 
-                                    //  go to payment activity req:shop,qty_purchased,item/barcode profile
-                                    Intent intent = new Intent(getActivity(),PaymentActivity.class);
-                                    intent.putExtra("shop",shop);
-                                    intent.putExtra("qty_purchased",dialogBinding.qty.getEditText().getText().toString());
-                                    intent.putExtra("itembarcode",itemBarcode);
-                                    startActivity(intent);
                                 }
+                            });
+                        }
 
-                            }
-                        });
                         return false;
                     }
                 });
@@ -182,7 +189,7 @@ public class SearchViewFragment extends Fragment {
                             public void onSuccess(DocumentSnapshot documentSnapshot) {
                                 Profile profile = documentSnapshot.toObject(Profile.class);
                                 Log.d(TAG, "profile:" + profile);
-                                LatLng you = new LatLng(profile.getLatitude(), profile.getLongitude());
+                                you= new LatLng(profile.getLatitude(), profile.getLongitude());
                                 map.addMarker(new MarkerOptions().position(you).title("You!!"));
                                 map.moveCamera(CameraUpdateFactory.newLatLng(you));
                             }
@@ -231,6 +238,8 @@ public class SearchViewFragment extends Fragment {
                 if (isSuggestionClicked) {
                     // get barcode of item clicked
                     Log.d(TAG, "isSuggestion clicked !");
+                    shopsWithId=new HashMap<>();
+                    ShopsList=new HashMap<>();
                     barcode = getBarcode(query);
                     if (barcode != null) {
                         fStore = FirebaseFirestore.getInstance();
