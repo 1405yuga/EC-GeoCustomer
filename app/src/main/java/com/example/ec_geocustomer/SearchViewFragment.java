@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -24,13 +23,12 @@ import androidx.appcompat.widget.SearchView;
 import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.ec_geocustomer.data.Availability;
 import com.example.ec_geocustomer.data.FiresStoreTableConstants;
 import com.example.ec_geocustomer.data.ItemBarcode;
+import com.example.ec_geocustomer.data.MarkerTagShopItembarcode;
 import com.example.ec_geocustomer.data.Profile;
 import com.example.ec_geocustomer.data.Shop;
 import com.example.ec_geocustomer.data.ShopProfile;
@@ -52,10 +50,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 
 
 public class SearchViewFragment extends Fragment {
@@ -63,14 +61,14 @@ public class SearchViewFragment extends Fragment {
     private static String barcode;
     FragmentSearchViewBinding binding;
     boolean newPoints = false;
-    HashMap<String,LatLng> shopsWithId = new HashMap<>();
+    HashMap<String, LatLng> shopsWithId = new HashMap<>();
     HashMap<String, String> list = new HashMap<>();
     SimpleCursorAdapter cursorAdapter;
     FirebaseFirestore firebaseFirestore, fStore;
     FirebaseAuth firebaseAuth;
     FiresStoreTableConstants constants = new FiresStoreTableConstants();
-    HashMap<String,Availability> ShopsList=new HashMap<>();
-    String itemBarcodeSearched = null,subCategory=null;
+    HashMap<String, Availability> ShopsList = new HashMap<>();
+    String itemBarcodeSearched = null, subCategory = null;
 
     SupportMapFragment mapFragment;
     GoogleMap map;
@@ -91,85 +89,62 @@ public class SearchViewFragment extends Fragment {
                     map.addMarker(new MarkerOptions().position(latLng).title("new!!"));
                     map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                 }
-                map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                map.setOnInfoWindowLongClickListener(new GoogleMap.OnInfoWindowLongClickListener() {
                     @Override
-                    public boolean onMarkerClick(@NonNull Marker marker) {
-                        Shop shop = (Shop) marker.getTag();
-                        if(shop!=null){
-                            Log.d(TAG,"on CLICK "+" shop obj"+shop.getShopname());
+                    public void onInfoWindowLongClick(@NonNull Marker marker) {
+                        Log.d(TAG, "onInfoWindowLongClick " + marker.getTitle());
+                        MarkerTagShopItembarcode tag = (MarkerTagShopItembarcode) marker.getTag();
+                        if (tag != null) {
+                            Shop shop = tag.getShop();
+                            ItemBarcode itemBarcode1 = tag.getItemBarcode();
+                            if (shop != null && itemBarcode1 != null) {
+                                Log.d(TAG, "on CLICK " + " shop obj" + shop.getShopname());
 //                      create dialog for shop
-                            Dialog dialog=new Dialog(getContext());
-                            DisplayProductDialogBinding dialogBinding=DisplayProductDialogBinding.inflate(getLayoutInflater());
-                            dialog.setContentView(dialogBinding.getRoot());
-                            dialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
-                            dialog.show();
-
-                            firebaseFirestore = FirebaseFirestore.getInstance();
-                            FiresStoreTableConstants constants = new FiresStoreTableConstants();
-                            firebaseFirestore.collection(constants.getBarcode()).document(itemBarcodeSearched).get()
-                                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                        @Override
-                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                            if (documentSnapshot.exists()) {
-                                                Log.d(TAG, "Exists " + documentSnapshot.getString(constants.getBarcodeName()));
-                                                itemBarcode =new ItemBarcode(documentSnapshot.getId(),documentSnapshot.getString(constants.getBarcodeName()),
-                                                        documentSnapshot.getString(constants.getBarcodeCategory()),documentSnapshot.getString(constants.getBarcodeSubCatgeory()),
-                                                        documentSnapshot.getString(constants.getBarcodeSize()),documentSnapshot.getString(constants.getBarcodeUrl()),
-                                                        documentSnapshot.getString(constants.getBarcodeBrand()), documentSnapshot.getDouble(constants.getBarcodePrice()));
-                                                dialogBinding.productName.setText(itemBarcode.getName());
-                                                dialogBinding.size.setText(itemBarcode.getSize());
-                                                dialogBinding.oldPrice.setText(itemBarcode.getMrp().toString());
-                                                subCategory = itemBarcode.getSubCategory();
-                                                Double d=itemBarcode.getMrp();
-                                                final Double newPrice=d*(100-shop.getDiscount())/100;
-                                                dialogBinding.price.setText(newPrice.toString());
-                                                //set image
-                                                Glide
-                                                        .with(getActivity())
-                                                        .load(itemBarcode.getUrl())
-                                                        .centerCrop()
-                                                        .into(dialogBinding.productImage);
-
-                                            } else {
-                                                Log.d(TAG, "Doesnt Exists");
-                                                dialogBinding.productName.setText("Doesnt exists");
-                                                dialogBinding.price.setText("Doesnt exists");
-                                            }
+                                Dialog dialog = new Dialog(getContext());
+                                DisplayProductDialogBinding dialogBinding = DisplayProductDialogBinding.inflate(getLayoutInflater());
+                                dialog.setContentView(dialogBinding.getRoot());
+                                dialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                                dialog.show();
+                                dialogBinding.productName.setText(itemBarcode1.getName());
+                                dialogBinding.size.setText(itemBarcode1.getSize());
+                                dialogBinding.oldPrice.setText(itemBarcode1.getMrp().toString());
+                                subCategory = itemBarcode1.getSubCategory();
+                                Double d = itemBarcode1.getMrp();
+                                final Double newPrice = d * (100 - shop.getDiscount()) / 100;
+                                dialogBinding.price.setText(newPrice.toString());
+                                //set image
+                                Glide
+                                        .with(getActivity())
+                                        .load(itemBarcode1.getUrl())
+                                        .centerCrop()
+                                        .into(dialogBinding.productImage);
+                                dialogBinding.shopname.setText(shop.getShopname());
+                                dialogBinding.discount.setText(shop.getDiscount().toString());
+                                dialogBinding.qtyAvail.setText(shop.getQuantity().toString());
+                                dialogBinding.buyBtn.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        //  check qty n available
+                                        if (dialogBinding.qty.getEditText().getText().toString().isEmpty() || Integer.parseInt(dialogBinding.qty.getEditText().getText().toString()) <= 0
+                                                || shop.getQuantity() < Integer.parseInt(dialogBinding.qty.getEditText().getText().toString())) {
+                                            dialogBinding.qty.setError("Enter proper quantity required");
+                                            return;
                                         }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.d(TAG, "Fails");
+                                        if (shop.getQuantity() >= Integer.parseInt(dialogBinding.qty.getEditText().getText().toString())) {
+                                            dialog.dismiss();
+
+                                            //  go to payment activity req:shop,qty_purchased,item/barcode profile
+                                            Intent intent = new Intent(getActivity(), PaymentActivity.class);
+                                            intent.putExtra("shop", shop);
+                                            intent.putExtra("qty_purchased", dialogBinding.qty.getEditText().getText().toString());
+                                            intent.putExtra("itembarcode", itemBarcode1);
+                                            startActivity(intent);
                                         }
-                                    });
-                            dialogBinding.shopname.setText(shop.getShopname());
-                            dialogBinding.discount.setText(shop.getDiscount().toString());
-                            dialogBinding.qtyAvail.setText(shop.getQuantity().toString());
-                            dialogBinding.buyBtn.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    //  check qty n available
-                                    if(dialogBinding.qty.getEditText().getText().toString().isEmpty() || Integer.parseInt(dialogBinding.qty.getEditText().getText().toString())<=0 ){
-                                        dialogBinding.qty.setError("Enter proper quantity required");
-                                        return;
-                                    }
-                                    if(shop.getQuantity()>=Integer.parseInt(dialogBinding.qty.getEditText().getText().toString())){
-                                        dialog.dismiss();
 
-                                        //  go to payment activity req:shop,qty_purchased,item/barcode profile
-                                        Intent intent = new Intent(getActivity(),PaymentActivity.class);
-                                        intent.putExtra("shop",shop);
-                                        intent.putExtra("qty_purchased",dialogBinding.qty.getEditText().getText().toString());
-                                        intent.putExtra("itembarcode",itemBarcode);
-                                        startActivity(intent);
                                     }
-
-                                }
-                            });
+                                });
+                            }
                         }
-
-                        return false;
                     }
                 });
 
@@ -177,7 +152,7 @@ public class SearchViewFragment extends Fragment {
                 firebaseAuth = FirebaseAuth.getInstance();
                 firebaseFirestore = FirebaseFirestore.getInstance();
                 final String email = firebaseAuth.getCurrentUser().getEmail();
-                if(email == null || email.trim().isEmpty()){
+                if (email == null || email.trim().isEmpty()) {
                     firebaseAuth.signOut();
                     startActivity(new Intent(getActivity(), MainActivity.class));
                 }
@@ -189,7 +164,7 @@ public class SearchViewFragment extends Fragment {
                             public void onSuccess(DocumentSnapshot documentSnapshot) {
                                 Profile profile = documentSnapshot.toObject(Profile.class);
                                 Log.d(TAG, "profile:" + profile);
-                                you= new LatLng(profile.getLatitude(), profile.getLongitude());
+                                you = new LatLng(profile.getLatitude(), profile.getLongitude());
                                 map.addMarker(new MarkerOptions().position(you).title("You!!"));
                                 map.moveCamera(CameraUpdateFactory.newLatLng(you));
                             }
@@ -200,7 +175,6 @@ public class SearchViewFragment extends Fragment {
 
 
     };
-
 
 
     private boolean isSuggestionClicked = false;
@@ -235,13 +209,33 @@ public class SearchViewFragment extends Fragment {
         binding.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+
                 if (isSuggestionClicked) {
                     // get barcode of item clicked
                     Log.d(TAG, "isSuggestion clicked !");
-                    shopsWithId=new HashMap<>();
-                    ShopsList=new HashMap<>();
+                    shopsWithId = new HashMap<>();
+                    ShopsList = new HashMap<>();
                     barcode = getBarcode(query);
+                    Log.d(TAG, "barcode " + barcode);
                     if (barcode != null) {
+
+                        FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
+                        firebaseFirestore.collection(constants.getBarcode()).document(barcode).get()
+                                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                        itemBarcode = new ItemBarcode(documentSnapshot.getId(), documentSnapshot.getString(constants.getBarcodeName()),
+                                                documentSnapshot.getString(constants.getBarcodeCategory()), documentSnapshot.getString(constants.getBarcodeSubCatgeory()),
+                                                documentSnapshot.getString(constants.getBarcodeSize()), documentSnapshot.getString(constants.getBarcodeUrl()),
+                                                documentSnapshot.getString(constants.getBarcodeBrand()), documentSnapshot.getDouble(constants.getBarcodePrice()));
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+
+                                    }
+                                });
                         fStore = FirebaseFirestore.getInstance();
                         fStore.collection(constants.getOwner())
                                 .get()
@@ -261,12 +255,12 @@ public class SearchViewFragment extends Fragment {
                                                             List<DocumentSnapshot> barcodeList = queryDocumentSnapshots.getDocuments();
                                                             for (DocumentSnapshot documentSnapshot : barcodeList) {
                                                                 if (documentSnapshot.getId().equals(barcode)) {
-                                                                    Log.d(TAG,"avail discount "+documentSnapshot.getDouble(constants.getOwnerDiscount()));
-                                                                    Availability availability=new Availability(documentSnapshot.getLong(constants.getOwnerQuantity()),documentSnapshot.getDouble(constants.getOwnerDiscount()));
-                                                                    ShopsList.put(id.getId(),availability);
+                                                                    Log.d(TAG, "avail discount " + documentSnapshot.getDouble(constants.getOwnerDiscount()));
+                                                                    Availability availability = new Availability(documentSnapshot.getLong(constants.getOwnerQuantity()), documentSnapshot.getDouble(constants.getOwnerDiscount()));
+                                                                    ShopsList.put(id.getId(), availability);
                                                                 }
                                                             }
-                                                            addShopsLatnLong(ShopsList);
+                                                            addShopsLatnLong(itemBarcode, ShopsList);
                                                             Log.d(TAG, "List of shops:" + ShopsList);
                                                         }
                                                     })
@@ -325,7 +319,7 @@ public class SearchViewFragment extends Fragment {
         return binding.getRoot();
     }
 
-    private void addShopsLatnLong(HashMap<String, Availability> shopsList) {
+    private void addShopsLatnLong(ItemBarcode itemBarcode, HashMap<String, Availability> shopsList) {
         newPoints = true;
 
         if (shopsList.size() > 0) {
@@ -333,22 +327,29 @@ public class SearchViewFragment extends Fragment {
             Log.d(TAG, "addshops called");
             FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
-            for (Map.Entry<String,Availability> shopId : shopsList.entrySet()) {
+            for (Map.Entry<String, Availability> shopId : shopsList.entrySet()) {
                 firestore.collection(constants.getOwner()).document(shopId.getKey())
                         .get()
                         .addOnSuccessListener(documentSnapshot -> {
                             ShopProfile profile = documentSnapshot.toObject(ShopProfile.class);
                             LatLng latLng = new LatLng(profile.getLatitude(), profile.getLongitude());
 //                            locationArrayList.add(latLng);
-                            shopsWithId.put(shopId.getKey(),latLng);
-                            Shop shop = new Shop(profile.getShopname(),profile.getOwnername(),profile.getAddress(),profile.getCity(), profile.getUpiId(),
-                                    profile.getMobile(),profile.getLatitude(),profile.getLongitude(),shopId.getValue().getQuantity(), shopId.getValue().getDiscount(), shopId.getKey());
-                            Marker m=map.addMarker(new MarkerOptions().
+                            shopsWithId.put(shopId.getKey(), latLng);
+                            Double d = itemBarcode.getMrp();
+                            final Double newPrice = d * (100 - shopId.getValue().getDiscount()) / 100;
+                            Shop shop = new Shop(profile.getShopname(), profile.getOwnername(), profile.getAddress(), profile.getCity(), profile.getUpiId(),
+                                    profile.getMobile(), profile.getLatitude(), profile.getLongitude(), shopId.getValue().getQuantity(), shopId.getValue().getDiscount(), shopId.getKey());
+                            Marker m = map.addMarker(new MarkerOptions().
                                     position(latLng).
-                                    title(profile.getShopname()).
-                                    icon(BitmapDescriptorFactory.defaultMarker(30))
+                                    title(profile.getShopname())
+                                    .snippet(getContext().getString(R.string.Rs) + newPrice)
+                                    .icon(BitmapDescriptorFactory.defaultMarker(30))
                             );
-                            m.setTag(shop);
+                            m.showInfoWindow();
+                            MarkerTagShopItembarcode tag = new MarkerTagShopItembarcode(itemBarcode, shop);
+                            if (tag != null) {
+                                m.setTag(tag);
+                            }
                             map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
                             map.animateCamera(CameraUpdateFactory.zoomIn());
 
@@ -368,7 +369,6 @@ public class SearchViewFragment extends Fragment {
         }
         return itemBarcodeSearched;
     }
-
 
 
     @Override
