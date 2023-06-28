@@ -26,15 +26,12 @@ public class Menus extends AppCompatActivity {
         binding.bottomNavigation.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch(item.getItemId()){
-                    case R.id.search:
+                if(item.getItemId()==R.id.search){
                         ReplaceFragment(new SearchViewFragment());
-                        break;
-                    case R.id.settings:
-                        ReplaceFragment(new Settings());
-                        break;
-
+                } else if (item.getItemId()== R.id.settings) {
+                    ReplaceFragment(new Settings());
                 }
+
                 return true;
             }
         });

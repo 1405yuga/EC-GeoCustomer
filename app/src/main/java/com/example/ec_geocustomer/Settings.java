@@ -132,14 +132,14 @@ public class Settings extends Fragment {
                         if (!dialogBinding.name.getEditText().getText().toString().trim().equals(profile.getName())) {
                             firebaseFirestore.collection(constants.getCustomer()).document(email).update("name", dialogBinding.name.getEditText().getText().toString());
                             profile.setName(dialogBinding.name.getEditText().getText().toString());
-                            dialogBinding.name.getEditText().setText(profile.getName());
+                            binding.name.setText(profile.getName());
                             Toast.makeText(getContext(), "Updated profile sucessfully", Toast.LENGTH_SHORT).show();
                         }
                         //address
                         if (!dialogBinding.addLine1.getEditText().getText().toString().trim().equals(profile.getAddress())) {
                             firebaseFirestore.collection(constants.getCustomer()).document(email).update("address", dialogBinding.addLine1.getEditText().getText().toString());
                             profile.setAddress(dialogBinding.addLine1.getEditText().getText().toString());
-                            dialogBinding.addLine1.getEditText().setText(profile.getAddress());
+                            binding.address.setText(profile.getAddress());
                             Toast.makeText(getContext(), "Updated profile sucessfully", Toast.LENGTH_SHORT).show();
                         }
 
@@ -147,7 +147,7 @@ public class Settings extends Fragment {
                         if (!dialogBinding.city.getEditText().getText().toString().trim().equals(profile.getCity())) {
                             firebaseFirestore.collection(constants.getCustomer()).document(email).update("city", dialogBinding.city.getEditText().getText().toString());
                             profile.setCity(dialogBinding.city.getEditText().getText().toString());
-                            dialogBinding.city.getEditText().setText(profile.getCity());
+                            binding.city.setText(profile.getCity());
                             Toast.makeText(getContext(), "Updated profile sucessfully", Toast.LENGTH_SHORT).show();
                         }
                         //mobile changed
@@ -202,7 +202,7 @@ public class Settings extends Fragment {
                                                 firebaseFirestore.collection(constants.getCustomer()).document(email).update("mobile", Long.parseLong(dialogBinding.mobile.getEditText().getText().toString().trim()));
                                                 Toast.makeText(getContext(), "Updated profile sucessfully", Toast.LENGTH_SHORT).show();
                                                 profile.setMobile(Long.parseLong(dialogBinding.mobile.getEditText().getText().toString()));
-                                                dialogBinding.mobile.getEditText().setText(profile.getMobile().toString());
+                                                binding.mobile.setText(profile.getMobile().toString());
 
                                             } else {
                                                 dialogBinding.otp.setError("Enter correct otp");
