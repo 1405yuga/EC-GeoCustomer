@@ -3,8 +3,8 @@ This user-friendly app is designed to enhance your shopping experience by provid
 
 ## Two app repositories are :
 
-[![EC-GeoCustomer](https://github.com/1405yuga/EC-GeoCustomer/assets/82303711/8347173c-939c-4c8e-bc67-8b2861533ba6 "EC-GeoCustomer")](https://github.com/1405yuga/EC-GeoCustomer)
-[![EC-GeoOwner](https://github.com/1405yuga/EC-GeoCustomer/assets/82303711/e068ed3b-f5ae-4d1d-9318-559cbd1cf1c4 "EC-GeoOwner")](https://github.com/1405yuga/EC-GeoOwner)
+[![EC-GeoCustomer](https://github-production-user-asset-6210df.s3.amazonaws.com/82303711/264062371-8347173c-939c-4c8e-bc67-8b2861533ba6.png "EC-GeoCustomer")](https://github.com/1405yuga/EC-GeoCustomer)
+[![EC-GeoOwner](https://github-production-user-asset-6210df.s3.amazonaws.com/82303711/264073721-e068ed3b-f5ae-4d1d-9318-559cbd1cf1c4.png "EC-GeoOwner")](https://github.com/1405yuga/EC-GeoOwner)
 
 # EC-GeoCustomer
 E-Commerce using Geo-Navigation Customer is the android application abbreviated as EC-Geo Customer. This is the branch of E-Commerce using Geo-Navigation where customer can search the shops where particular product is available.Here customer can compare rate and can also place order online. If there are any shortcomings of products at home one can easily get the shops where the product is available. As a result it is less time consuming.
